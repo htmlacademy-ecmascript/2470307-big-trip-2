@@ -1,4 +1,4 @@
-import SortView from '../view/list-sort-view.js';
+import SortView from '../view/sort-list-view.js';
 import { SORT_OPTIONS } from '../data/sort-data.js';
 import { render, RenderPosition } from '../render.js';
 

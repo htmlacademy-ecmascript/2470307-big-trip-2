@@ -1,4 +1,4 @@
-import FiltersView from '../view/list-filters-view.js';
+import FiltersView from '../view/filters-list-view.js';
 import { FILTERS } from '../data/filter-data.js';
 import { render, RenderPosition } from '../render.js';
 
