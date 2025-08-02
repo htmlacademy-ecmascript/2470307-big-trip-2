@@ -1,50 +1,110 @@
 import TripPontsListView from '../view/trip-point-list-view.js';
 import EditPointView from '../view/trip-point-edit-view.js';
 import PointView from '../view/trip-point-view.js';
-import { render } from '../render.js';
-import { START_COUNT_POINT_RENDER } from '../constants.js';
+import { render, replace } from '../framework/render.js';
+import { isEscapeKey } from '../utils/common.js';
 
+/**
+ * @description Главный презентер, управляет отрисовкой списка точек
+ */
 export default class TripPresenter {
-  constructor({ tripContainer, pointsModel, offersModel, destinationsModel }) {
-    this.tripContainer = tripContainer;
-    this.pointsModel = pointsModel;
-    this.offersModel = offersModel;
-    this.destinationsModel = destinationsModel;
+  /**
+   * @description DOM-элемент, в который будет рендериться список
+   * @type {HTMLElement}
+   */
+  #tripContainer = null;
+
+  /**
+   * @description Модель точек маршрута
+   * @type {PointsModel}
+   */
+  #pointsModel = null;
+
+  /**
+   * @description Компонент списка (ul)
+   * @type {TripPontsListView}
+   */
+  #tripListView = new TripPontsListView();
+
+  /**
+   * @description Массив точек маршрута
+   * @type {Array<Object>}
+   */
+  #tripPoints = [];
+
+  /**
+   * @param {Object} args - Аргументы конструктора
+   * @param {HTMLElement} args.tripContainer - DOM-контейнер
+   * @param {PointsModel} args.pointsModel - Модель точек
+   */
+  constructor({ tripContainer, pointsModel }) {
+    this.#tripContainer = tripContainer;
+    this.#pointsModel = pointsModel;
   }
 
+  /**
+   * @description Инициализация презентера
+   */
   init() {
-    const rawPoints = this.pointsModel.getPoints();
-    const allOffers = this.offersModel.getOffers();
-    const allDestinations = this.destinationsModel.getDestinations();
+    this.#tripPoints = this.#pointsModel.points;
+    this.#renderTrip();
+  }
 
-    this.tripPoints = rawPoints.map((point) => {
-      const destination = allDestinations.find((dest) => dest.id === point.destination);
-      const offersForType = allOffers.find((offer) => offer.type === point.type)?.offers || [];
-      const selectedOffers = offersForType.filter((offer) => point.offers.includes(offer.id));
+  /**
+   * @description Рендерит одну точку маршрута
+   * @param {Object} point - Точка маршрута
+   */
+  #renderPoint(point) {
+    const escKeyDownHandler = (evt) => {
+      if (isEscapeKey(evt)) {
+        evt.preventDefault();
+        replaceFormToPoint();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
+    };
 
-      return {
-        ...point,
-        basePrice: point.base_price,
-        dateFrom: point.date_from,
-        dateTo: point.date_to,
-        isFavorite: point.is_favorite,
-        destination,
-        offers: selectedOffers,
-      };
+    const pointComponent = new PointView({
+      point,
+      onRollupClick: () => {
+        replacePointToForm();
+        document.addEventListener('keydown', escKeyDownHandler);
+      }
     });
 
-    this.tripListView = new TripPontsListView();
-    render(this.tripListView, this.tripContainer);
-    const listElement = this.tripListView.getElement();
+    const editComponent = new EditPointView({
+      point,
+      allOffers: this.#pointsModel.offers,
+      allDestinations: this.#pointsModel.destinations,
+      onFormSubmit: () => {
+        replaceFormToPoint();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      },
 
-    render(new EditPointView({
-      point: this.tripPoints[0],
-      allOffers,
-      allDestinations
-    }), listElement);
+      onRollupClick: () => {
+        replaceFormToPoint();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
+    });
 
-    for (let i = START_COUNT_POINT_RENDER; i < this.tripPoints.length; i++) {
-      render(new PointView({ point: this.tripPoints[i] }), listElement);
+    function replacePointToForm() {
+      replace(editComponent, pointComponent);
+    }
+
+    function replaceFormToPoint() {
+      replace(pointComponent, editComponent);
+    }
+
+    render(pointComponent, this.#tripListView.element);
+  }
+
+  /**
+   * @description Рендерит весь список точек
+   */
+  #renderTrip() {
+    render(this.#tripListView, this.#tripContainer);
+
+    for (let i = 0; i < this.#tripPoints.length; i++) {
+      this.#renderPoint(this.#tripPoints[i]);
     }
   }
 }

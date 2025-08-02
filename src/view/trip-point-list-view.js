@@ -1,23 +1,22 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
+/**
+ * @description Создает шаблон для контейнера списка точек (ul)
+ * @returns {string}
+ */
 function createTripListTemplate() {
   return '<ul class="trip-events__list"></ul>';
 }
 
-export default class TripPontsListView {
-  getTemplate() {
+/**
+ * @description Класс представления для контейнера списка точек
+ */
+export default class TripPontsListView extends AbstractView {
+  /**
+   * @description Геттер для получения шаблона
+   * @returns {string}
+   */
+  get template() {
     return createTripListTemplate();
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

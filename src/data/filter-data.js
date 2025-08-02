@@ -1,22 +1,26 @@
-export const FILTERS = [
+import { FilterType } from '../constants.js';
+
+const FILTERS = [
   {
-    id: 'everything',
-    value: 'everything',
-    label: 'Everything'
+    id: FilterType.EVERYTHING,
+    value: FilterType.EVERYTHING,
+    label: 'Everything',
   },
   {
-    id: 'future',
-    value: 'future',
-    label: 'Future'
+    id: FilterType.FUTURE,
+    value: FilterType.FUTURE,
+    label: 'Future',
   },
   {
-    id: 'present',
-    value: 'present',
-    label: 'Present'
+    id: FilterType.PRESENT,
+    value: FilterType.PRESENT,
+    label: 'Present',
   },
   {
-    id: 'past',
-    value: 'past',
-    label: 'Past'
+    id: FilterType.PAST,
+    value: FilterType.PAST,
+    label: 'Past',
   },
 ];
+
+export { FILTERS };

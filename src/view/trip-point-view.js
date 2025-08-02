@@ -1,9 +1,14 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { formatDate } from '../utils/datetime.js';
 import { createTripPointEventTemplate } from './trip-point-event-view.js';
 import { createTripSelectedOfferPointTemplate } from './trip-selected-offer-point-view.js';
 
 
+/**
+ * @description Создает шаблон для элемента списка (li)
+ * @param {Object} point - Точка маршрута
+ * @returns {string}
+ */
 function createTripPointItemTemplate(point) {
   const { dateFrom, isFavorite, offers } = point;
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
@@ -34,24 +39,44 @@ function createTripPointItemTemplate(point) {
   `;
 }
 
-export default class PointView {
-  constructor({ point }) {
-    this.point = point;
-    this.element = null;
+/**
+ * @description Класс представления для точки маршрута в списке
+ */
+export default class PointView extends AbstractView {
+  /**
+   * @description Точка маршрута
+   * @type {Object|null}
+   */
+  #point = null;
+  /**
+   * @description Колбэк для обработки клика по кнопке "стрелка вниз"
+   * @type {Function}
+   */
+  #handleRollupClick = null;
+
+  /**
+   * @param {Object} args - Аргументы конструктора
+   * @param {Object} args.point - Точка маршрута
+   * @param {Function} args.onRollupClick - Колбэк для обработки клика по кнопке "стрелка вниз"
+   */
+  constructor({ point, onRollupClick }) {
+    super();
+    this.#point = point;
+    this.#handleRollupClick = onRollupClick;
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupClickHandler);
   }
 
-  getTemplate() {
-    return createTripPointItemTemplate(this.point);
+  /**
+   * @description Геттер для получения шаблона
+   * @returns {string}
+   */
+  get template() {
+    return createTripPointItemTemplate(this.#point);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #rollupClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleRollupClick();
+  };
 }
