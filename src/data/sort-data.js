@@ -1,42 +1,29 @@
+import { SortType } from '../constants.js';
+
+/**
+ * @description Опции сортировки, которые отображаются пользователю
+ * @type {Array<Object>}
+ */
 export const SORT_OPTIONS = [
   {
-    type: 'day',
-    id: 'day',
-    value: 'day',
+    type: SortType.DAY,
     label: 'Day',
-    isDisabled: false,
     isDefault: true
   },
   {
-    type: 'event',
-    id: 'event',
-    value: 'event',
+    type: SortType.EVENT,
     label: 'Event',
-    isDisabled: true,
-    isDefault: false
   },
   {
-    type: 'time',
-    id: 'time',
-    value: 'time',
+    type: SortType.TIME,
     label: 'Time',
-    isDisabled: false,
-    isDefault: false
   },
   {
-    type: 'price',
-    id: 'price',
-    value: 'price',
+    type: SortType.PRICE,
     label: 'Price',
-    isDisabled: false,
-    isDefault: false
   },
   {
-    type: 'offer',
-    id: 'offer',
-    value: 'offer',
+    type: SortType.OFFERS,
     label: 'Offers',
-    isDisabled: true,
-    isDefault: false
   },
 ];

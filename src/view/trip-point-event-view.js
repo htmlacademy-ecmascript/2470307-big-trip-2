@@ -1,5 +1,10 @@
 import { formatTime, getTimeDifference } from '../utils/datetime.js';
 
+/**
+ * @description Создает шаблон для основной информации о событии в точке
+ * @param {Object} point - Точка маршрута
+ * @returns {string}
+ */
 function createTripPointEventTemplate(point) {
   const { type, destination, dateFrom, dateTo, basePrice } = point;
   const pointType = type.charAt(0).toUpperCase() + type.slice(1);

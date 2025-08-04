@@ -1,6 +1,9 @@
 import { getRandomArrayElement } from '../utils/random.js';
 import { getBasePrice } from '../utils/base-price.js';
 
+/**
+ * @description Массив "сырых" данных о точках маршрута
+ */
 const points = [
   {
     'id': 'ddbdfdd5-2771-4207-9bdd-b77962f4f784',
@@ -309,6 +312,10 @@ const points = [
   }
 ];
 
+/**
+ * @description Генерирует случайную точку маршрута
+ * @returns {Object} Случайная точка маршрута
+ */
 function getRandomPoint() {
   return getRandomArrayElement(points);
 }

@@ -1,45 +1,52 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
-function createSortItemTemplate(sortItem, currentSortType) {
-  const { type, id, value, label, isDisabled } = sortItem;
-  const isChecked = currentSortType === value;
+/**
+ * @description Создает шаблон для одного элемента сортировки
+ * @param {Object} props - Свойства элемента сортировки
+ * @returns {string}
+ */
+function createSortItemTemplate({ sortType, label, isChecked, isDisabled }) {
 
   return (
-    `<div class="trip-sort__item  trip-sort__item--${type}">
+    `<div class="trip-sort__item  trip-sort__item--${sortType}">
       <input
-        id="sort-${id}"
+        id="sort-${sortType}"
         class="trip-sort__input  visually-hidden"
         type="radio"
         name="trip-sort"
-        value="sort-${value}"
+        value="sort-${sortType}"
         ${isChecked ? 'checked' : ''}
         ${isDisabled ? 'disabled' : ''}
       >
-      <label class="trip-sort__btn" for="sort-${id}">${label}</label>
+      <label class="trip-sort__btn" for="sort-${sortType}">${label}</label>
     </div>`
 
   );
 }
 
-export default class SortItemView {
-  constructor(sortItem, currentSortType) {
-    this.sortItem = sortItem ;
-    this.currentSortType = currentSortType;
+/**
+ * @description Класс представления для одного элемента сортировки
+ */
+export default class SortItemView extends AbstractView {
+  /**
+   * @description Свойства компонента
+   * @type {Object}
+   */
+  #props = null;
 
+  /**
+   * @param {Object} props - Свойства компонента
+   */
+  constructor(props) {
+    super();
+    this.#props = props;
   }
 
-  getTemplate() {
-    return createSortItemTemplate(this.sortItem, this.currentSortType);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  /**
+   * @description Геттер для получения шаблона
+   * @returns {string}
+   */
+  get template() {
+    return createSortItemTemplate(this.#props);
   }
 }
