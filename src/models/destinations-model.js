@@ -6,13 +6,13 @@ import { destinations } from '../mock/destinations-mock.js';
 export default class DestinationsModel {
   /**
    * @description Пункты назначения
-   * @type {Array<Object>}
+   * @type {Array}
    */
   #destinations = destinations;
 
   /**
    * @description Геттер для получения всех пунктов назначения
-   * @returns {Array<Object>}
+   * @returns {Array}
    */
   get destinations() {
     return this.#destinations;

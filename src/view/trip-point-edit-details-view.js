@@ -1,7 +1,7 @@
 /**
  * @description Создает шаблон для блока с доступными опциями
  * @param {Object} point - Точка маршрута
- * @param {Array<Object>} allOffersForType - Все опции для данного типа точки
+ * @param {Array} allOffersForType - Все опции для данного типа точки
  * @returns {string}
  */
 function createAvailableOffersTemplate(point, allOffersForType) {
@@ -39,7 +39,7 @@ function createAvailableOffersTemplate(point, allOffersForType) {
 
 /**
  * @description Создает шаблон для блока с фотографиями пункта назначения
- * @param {Array<Object>} pictures - Массив с фотографиями
+ * @param {Array} pictures - Массив с фотографиями
  * @returns {string}
  */
 function createDestinationPicturesTemplate(pictures) {
@@ -77,7 +77,7 @@ function createDestinationDetailsTemplate(destination) {
 /**
  * @description Создает шаблон для секции "details" в форме редактирования
  * @param {Object} point - Точка маршрута
- * @param {Array<Object>} allOffersForType - Все опции для данного типа точки
+ * @param {Array} allOffersForType - Все опции для данного типа точки
  * @returns {string}
  */
 function createTripPointEditDetailsTemplate(point, allOffersForType) {
