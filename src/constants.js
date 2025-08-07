@@ -1,7 +1,7 @@
 /** Количество точек для отрисовки */
 const POINT_COUNT_RENDER = 3;
-/** Начальное количество точек для отрисовки (для цикла) */
-
+/** Максимальное количество городов в шапке */
+const TRIP_INFO_MAX_DESTINATIONS = 3;
 /** Диапазон базовой цены */
 const BasePrice = {
   MIN: 99,
@@ -41,5 +41,6 @@ export {
   DateFormat,
   POINT_COUNT_RENDER,
   FilterType,
-  SortType
+  SortType,
+  TRIP_INFO_MAX_DESTINATIONS
 };

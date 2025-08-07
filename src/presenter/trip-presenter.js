@@ -2,6 +2,7 @@ import TripPontsListView from '../view/trip-point-list-view.js';
 import EditPointView from '../view/trip-point-edit-view.js';
 import PointView from '../view/trip-point-view.js';
 import { render, replace } from '../framework/render.js';
+import TripEmptyListView from '../view/trip-empty-list-view.js';
 import { isEscapeKey } from '../utils/common.js';
 
 /**
@@ -28,7 +29,7 @@ export default class TripPresenter {
 
   /**
    * @description Массив точек маршрута
-   * @type {Array<Object>}
+   * @type {Array}
    */
   #tripPoints = [];
 
@@ -101,6 +102,11 @@ export default class TripPresenter {
    * @description Рендерит весь список точек
    */
   #renderTrip() {
+    if (this.#tripPoints.length === 0) {
+      render(new TripEmptyListView(), this.#tripContainer);
+      return;
+    }
+
     render(this.#tripListView, this.#tripContainer);
 
     for (let i = 0; i < this.#tripPoints.length; i++) {

@@ -3,7 +3,7 @@ import { formatDateTime } from '../utils/datetime.js';
 /**
  * @description Создает шаблон для списка типов событий
  * @param {string} currentType - Текущий тип точки
- * @param {Array<Object>} allOffers - Все доступные опции
+ * @param {Array} allOffers - Все доступные опции
  * @returns {string}
  */
 function createEventTypeItemsTemplate(currentType, allOffers) {
@@ -21,7 +21,7 @@ function createEventTypeItemsTemplate(currentType, allOffers) {
 
 /**
  * @description Создает шаблон для списка пунктов назначения в datalist
- * @param {Array<Object>} allDestinations - Все доступные пункты назначения
+ * @param {Array} allDestinations - Все доступные пункты назначения
  * @returns {string}
  */
 function createDestinationOptionsTemplate(allDestinations) {
@@ -31,8 +31,8 @@ function createDestinationOptionsTemplate(allDestinations) {
 /**
  * @description Создает шаблон для шапки формы редактирования
  * @param {Object} point - Точка маршрута
- * @param {Array<Object>} allDestinations - Все доступные пункты назначения
- * @param {Array<Object>} allOffers - Все доступные опции
+ * @param {Array} allDestinations - Все доступные пункты назначения
+ * @param {Array} allOffers - Все доступные опции
  * @returns {string}
  */
 function createTripPointEditHeaderTemplate(point, allDestinations, allOffers) {

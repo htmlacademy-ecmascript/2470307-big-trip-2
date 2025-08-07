@@ -20,7 +20,8 @@ const pointsModel = new PointsModel({ offersModel, destinationsModel });
 
 // Создание и инициализация презентера для фильтров
 const filterPresenter = new FilterPresenter({
-  filtersContainer: tripControlsElement
+  filtersContainer: tripControlsElement,
+  pointsModel
 });
 
 filterPresenter.init();
@@ -34,7 +35,8 @@ sortPresenter.init();
 
 // Создание и инициализация презентера для основной информации
 const infoPresenter = new InfoPresenter({
-  infoContainer: tripMain
+  infoContainer: tripMain,
+  pointsModel
 });
 
 infoPresenter.init();

@@ -1,6 +1,6 @@
 /**
  * @description Создает шаблон для списка выбранных опций
- * @param {Array<Object>} offers - Массив выбранных опций
+ * @param {Array} offers - Массив выбранных опций
  * @returns {string}
  */
 function createTripSelectedOfferPointTemplate(offers) {

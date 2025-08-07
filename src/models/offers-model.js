@@ -6,13 +6,13 @@ import { offers } from '../mock/offers-mock.js';
 export default class OffersModel {
   /**
    * @description Дополнительные опции
-   * @type {Array<Object>}
+   * @type {Array}
    */
   #offers = offers;
 
   /**
    * @description Геттер для получения всех опций
-   * @returns {Array<Object>}
+   * @returns {Array}
    */
   get offers() {
     return this.#offers;
@@ -20,7 +20,7 @@ export default class OffersModel {
 
   /**
    * @description Приватный метод для получения плоского списка всех опций
-   * @returns {Array<Object>}
+   * @returns {Array}
    */
   #getAllOffers() {
     return this.#offers.flatMap((item) => item.offers);
@@ -29,7 +29,7 @@ export default class OffersModel {
   /**
    * @description Метод для получения опций по типу точки
    * @param {string} type - Тип точки
-   * @returns {Array<Object>}
+   * @returns {Array}
    */
   getOffersByType(type = '') {
     return this.#offers.find((item) => item.type === type)?.offers || [];
@@ -37,8 +37,8 @@ export default class OffersModel {
 
   /**
    * @description Метод для получения опций по их ID
-   * @param {Array<string>} ids - Массив ID опций
-   * @returns {Array<Object>}
+   * @param {Array} ids - Массив ID опций
+   * @returns {Array}
    */
   getOffersByIds(ids = []) {
     return this.#getAllOffers().filter((offer) => ids.includes(offer.id));
@@ -46,7 +46,7 @@ export default class OffersModel {
 
   /**
    * @description Метод для получения всех доступных типов точек
-   * @returns {Array<string>}
+   * @returns {Array}
    */
   getPointTypes() {
     return this.#offers.map((item) => item.type);

@@ -5,8 +5,8 @@ import { createTripPointEditDetailsTemplate } from './trip-point-edit-details-vi
 /**
  * @description Создает шаблон для формы редактирования точки
  * @param {Object} point - Точка маршрута
- * @param {Array<Object>} allOffers - Все доступные опции
- * @param {Array<Object>} allDestinations - Все доступные пункты назначения
+ * @param {Array} allOffers - Все доступные опции
+ * @param {Array} allDestinations - Все доступные пункты назначения
  * @returns {string}
  */
 function createEditTripPointsTemplate(point, allOffers, allDestinations) {
@@ -31,12 +31,12 @@ export default class EditPointView extends AbstractView {
   #point = null;
   /**
    * @description Все доступные опции
-   * @type {Array<Object>}
+   * @type {Array}
    */
   #allOffers = [];
   /**
    * @description Все доступные пункты назначения
-   * @type {Array<Object>}
+   * @type {Array}
    */
   #allDestinations = [];
   /**
@@ -53,8 +53,8 @@ export default class EditPointView extends AbstractView {
   /**
    * @param {Object} args - Аргументы конструктора
    * @param {Object} args.point - Точка маршрута
-   * @param {Array<Object>} args.allOffers - Все доступные опции
-   * @param {Array<Object>} args.allDestinations - Все доступные пункты назначения
+   * @param {Array} args.allOffers - Все доступные опции
+   * @param {Array} args.allDestinations - Все доступные пункты назначения
    * @param {Function} args.onFormSubmit - Колбэк для обработки отправки формы
    * @param {Function} args.onRollupClick - Колбэк для обработки клика по кнопке "стрелка вверх"
    */

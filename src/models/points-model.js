@@ -7,7 +7,7 @@ import { POINT_COUNT_RENDER } from '../constants.js';
 export default class PointsModel {
   /**
    * @description "Сырые" данные о точках
-   * @type {Array<Object>}
+   * @type {Array}
    */
   #points = [];
   /**
@@ -34,7 +34,7 @@ export default class PointsModel {
 
   /**
    * @description Геттер для получения всех доступных опций
-   * @returns {Array<Object>}
+   * @returns {Array}
    */
   get offers() {
     return this.#offersModel.offers;
@@ -42,7 +42,7 @@ export default class PointsModel {
 
   /**
    * @description Геттер для получения всех доступных пунктов назначения
-   * @returns {Array<Object>}
+   * @returns {Array}
    */
   get destinations() {
     return this.#destinationsModel.destinations;
@@ -51,7 +51,7 @@ export default class PointsModel {
   /**
    * @description Геттер для получения точек,
    * адаптированных для клиента.
-   * @returns {Array<Object>}
+   * @returns {Array}
    */
   get points() {
     return this.#points.map((point) => {
