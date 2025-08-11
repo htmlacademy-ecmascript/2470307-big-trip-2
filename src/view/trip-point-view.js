@@ -53,18 +53,26 @@ export default class PointView extends AbstractView {
    * @type {Function}
    */
   #handleRollupClick = null;
+  /**
+   * @description Колбэк для обработки клика по кнопке "в избранное"
+   * @type {Function}
+   */
+  #handleFavoriteClick = null;
 
   /**
    * @param {Object} args - Аргументы конструктора
    * @param {Object} args.point - Точка маршрута
    * @param {Function} args.onRollupClick - Колбэк для обработки клика по кнопке "стрелка вниз"
+   * @param {Function} args.onFavoriteClick - Колбэк для обработки клика по кнопке "в избранное"
    */
-  constructor({ point, onRollupClick }) {
+  constructor({ point, onRollupClick, onFavoriteClick }) {
     super();
     this.#point = point;
     this.#handleRollupClick = onRollupClick;
+    this.#handleFavoriteClick = onFavoriteClick;
 
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupClickHandler);
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteClickHandler);
   }
 
   /**
@@ -78,5 +86,10 @@ export default class PointView extends AbstractView {
   #rollupClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleRollupClick();
+  };
+
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteClick();
   };
 }

@@ -14,11 +14,10 @@ function createAvailableOffersTemplate(point, allOffersForType) {
   const offersList = allOffersForType.map(({ id, title, price }) => {
     // Проверяем, выбрана ли эта опция у текущей точки
     const isChecked = pointOfferIds.includes(id) ? 'checked' : '';
-    const offerId = id.slice(0, 8);
     return `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerId}-1" type="checkbox" name="event-offer-${offerId}" ${isChecked}>
-        <label class="event__offer-label" for="event-offer-${offerId}-1">
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${id}" type="checkbox" name="event-offer" value="${id}" ${isChecked}>
+        <label class="event__offer-label" for="event-offer-${id}">
           <span class="event__offer-title">${title}</span>
           &plus;&euro;&nbsp;
           <span class="event__offer-price">${price}</span>

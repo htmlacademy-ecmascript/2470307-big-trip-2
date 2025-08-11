@@ -27,6 +27,14 @@ const FilterType = {
   PAST:'past'
 };
 
+/** Сообщения для пустых списков */
+const EmptyListMessages = {
+  [FilterType.EVERYTHING]: 'Click New Event to create your first point',
+  [FilterType.PAST]: 'There are no past events now',
+  [FilterType.PRESENT]: 'There are no present events now',
+  [FilterType.FUTURE]: 'There are no future events now',
+};
+
 /** Типы сортировки */
 const SortType = {
   DAY: 'day',
@@ -36,11 +44,19 @@ const SortType = {
   OFFERS: 'offer',
 };
 
+/** Режимы отображения точки */
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 export {
   BasePrice,
   DateFormat,
   POINT_COUNT_RENDER,
   FilterType,
   SortType,
-  TRIP_INFO_MAX_DESTINATIONS
+  TRIP_INFO_MAX_DESTINATIONS,
+  EmptyListMessages,
+  Mode
 };
