@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { DateFormat, TRIP_INFO_MAX_DESTINATIONS } from '../constants.js';
 
-const sortPointsByDate = (points) => [...points].sort((a, b) => dayjs(a.dateFrom).diff(dayjs(b.dateFrom)));
+const sortPointsByDate = (points) => [...points].sort((dateA, dateB) => dayjs(dateA.dateFrom).diff(dayjs(dateB.dateFrom)));
 
 /**
  * @description Генерирует заголовок для всего путешествия
