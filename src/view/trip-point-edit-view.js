@@ -60,6 +60,12 @@ export default class EditPointView extends AbstractStatefulView {
     return createEditTripPointsTemplate(this._state, this.#allOffers, this.#allDestinations);
   }
 
+  reset(point) {
+    this.updateElement(
+      EditPointView.parsePointToState(point),
+    );
+  }
+
   _restoreHandlers() {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupClickHandler);
     this.element.addEventListener('submit', this.#formSubmitHandler);

@@ -15,6 +15,15 @@ function createSortTemplate() {
  * @description Класс представления для контейнера сортировки
  */
 export default class SortView extends AbstractView {
+  #handleSortTypeChange = null;
+
+  constructor({ onSortTypeChange }) {
+    super();
+    this.#handleSortTypeChange = onSortTypeChange;
+
+    this.element.addEventListener('change', this.#sortTypeChangeHandler);
+  }
+
   /**
    * @description Геттер для получения шаблона
    * @returns {string}
@@ -22,4 +31,12 @@ export default class SortView extends AbstractView {
   get template() {
     return createSortTemplate();
   }
+
+  #sortTypeChangeHandler = (evt) => {
+    if (evt.target.tagName !== 'INPUT') {
+      return;
+    }
+
+    this.#handleSortTypeChange(evt.target.value);
+  };
 }
