@@ -14,7 +14,7 @@ function createSortItemTemplate({ sortType, label, isChecked, isDisabled }) {
         class="trip-sort__input  visually-hidden"
         type="radio"
         name="trip-sort"
-        value="sort-${sortType}"
+        value="${sortType}"
         ${isChecked ? 'checked' : ''}
         ${isDisabled ? 'disabled' : ''}
       >

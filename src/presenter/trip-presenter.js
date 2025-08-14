@@ -1,9 +1,13 @@
 import TripPontsListView from '../view/trip-point-list-view.js';
-import { render } from '../framework/render.js';
+import { render, remove } from '../framework/render.js';
 import TripEmptyListView from '../view/trip-empty-list-view.js';
 import PointPresenter from './point-presenter.js';
 import { filterUtils } from '../utils/filter.js';
-import { FilterType, EmptyListMessages } from '../constants.js';
+import { FilterType, EmptyListMessages, SortType } from '../constants.js';
+import SortView from '../view/sort-list-view.js';
+import { SORT_OPTIONS } from '../data/sort-data.js';
+import SortItemView from '../view/sort-item-view.js';
+import { sortPointsByDate, sortPointsByPrice, sortPointsByTime } from '../utils/point.js';
 
 /**
  * @description Главный презентер, управляет отрисовкой списка точек
@@ -32,6 +36,23 @@ export default class TripPresenter {
    * @type {string}
    */
   #currentFilterType = FilterType.EVERYTHING;
+  /**
+   * @description Текущий тип сортировки
+   * @type {string}
+   */
+  #currentSortType = SortType.DAY;
+
+  /**
+   * @description Компонент сортировки
+   * @type {SortView|null}
+   */
+  #sortComponent = null;
+  /**
+   * @description Компонент-заглушка
+   * @type {TripEmptyListView|null}
+   */
+  #emptyListComponent = null;
+
   /**
    * @description Массив точек маршрута
    * @type {Array}
@@ -67,8 +88,10 @@ export default class TripPresenter {
    */
   init() {
     this.#tripPoints = [...this.#pointsModel.points];
-    this.#clearTripList();
-    this.#renderTrip();
+    // Сортируем точки по умолчанию (по дате)
+    this.#tripPoints = sortPointsByDate(this.#tripPoints);
+
+    this.#renderBoard();
   }
 
   #handleDataChange = (updatedPoint) => {
@@ -79,6 +102,46 @@ export default class TripPresenter {
   #handleModeChange = () => {
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    switch (sortType) {
+      case SortType.PRICE:
+        this.#tripPoints = sortPointsByPrice(this.#tripPoints);
+        break;
+      case SortType.TIME:
+        this.#tripPoints = sortPointsByTime(this.#tripPoints);
+        break;
+      case SortType.DAY:
+        this.#tripPoints = sortPointsByDate(this.#tripPoints);
+    }
+
+    this.#currentSortType = sortType;
+    this.#renderBoard();
+  };
+
+  #renderSort() {
+    this.#sortComponent = new SortView({
+      onSortTypeChange: this.#handleSortTypeChange,
+    });
+
+    const availableSorts = [SortType.DAY, SortType.TIME, SortType.PRICE];
+
+    for (const { type, label } of SORT_OPTIONS) {
+      const sortItemComponent = new SortItemView({
+        sortType: type,
+        label,
+        isChecked: type === this.#currentSortType,
+        isDisabled: !availableSorts.includes(type)
+      });
+      render(sortItemComponent, this.#sortComponent.element);
+    }
+
+    render(this.#sortComponent, this.#tripContainer);
+  }
 
   /**
    * @description Рендерит одну точку маршрута
@@ -102,8 +165,8 @@ export default class TripPresenter {
   #renderTrip() {
     const points = this.points;
     if (points.length === 0) {
-      const message = EmptyListMessages[this.#currentFilterType];
-      render(new TripEmptyListView({ message }), this.#tripContainer);
+      this.#emptyListComponent = new TripEmptyListView({ message: EmptyListMessages[this.#currentFilterType] });
+      render(this.#emptyListComponent, this.#tripContainer);
       return;
     }
 
@@ -114,8 +177,27 @@ export default class TripPresenter {
     }
   }
 
-  #clearTripList() {
+  /**
+   * @description Отрисовывает доску со всеми компонентами
+   */
+  #renderBoard() {
+    this.#clearBoard();
+    this.#renderSort();
+    this.#renderTrip();
+  }
+
+  /**
+   * @description Очищает доску (список точек и сортировку)
+   */
+  #clearBoard() {
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
+
+    remove(this.#sortComponent);
+    remove(this.#tripListView);
+
+    if (this.#emptyListComponent) {
+      remove(this.#emptyListComponent);
+    }
   }
 }

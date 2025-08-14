@@ -2,7 +2,7 @@ import { SortType } from '../constants.js';
 
 /**
  * @description Опции сортировки, которые отображаются пользователю
- * @type {Array<Object>}
+ * @type {Array}
  */
 export const SORT_OPTIONS = [
   {

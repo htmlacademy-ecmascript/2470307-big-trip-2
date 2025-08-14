@@ -3,6 +3,10 @@ import { DateFormat, TRIP_INFO_MAX_DESTINATIONS } from '../constants.js';
 
 const sortPointsByDate = (points) => [...points].sort((dateA, dateB) => dayjs(dateA.dateFrom).diff(dayjs(dateB.dateFrom)));
 
+const sortPointsByTime = (points) => [...points].sort((pointA, pointB) => dayjs(pointB.dateTo).diff(dayjs(pointB.dateFrom)) - dayjs(pointA.dateTo).diff(dayjs(pointA.dateFrom)));
+
+const sortPointsByPrice = (points) => [...points].sort((pointA, pointB) => pointB.basePrice - pointA.basePrice);
+
 /**
  * @description Генерирует заголовок для всего путешествия
  * @param {Array} points - Массив точек
@@ -49,6 +53,8 @@ const getTripCost = (points) => {
 
 export {
   sortPointsByDate,
+  sortPointsByTime,
+  sortPointsByPrice,
   getTripTitle,
   getTripDates,
   getTripCost

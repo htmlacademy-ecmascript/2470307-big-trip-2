@@ -1,5 +1,5 @@
 /** Количество точек для отрисовки */
-const POINT_COUNT_RENDER = 3;
+const POINT_COUNT_RENDER = 7;
 /** Максимальное количество городов в шапке */
 const TRIP_INFO_MAX_DESTINATIONS = 3;
 /** Диапазон базовой цены */
