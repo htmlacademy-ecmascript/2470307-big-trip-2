@@ -77,6 +77,7 @@ export default class PointPresenter {
         allDestinations: this.#allDestinations,
         onFormSubmit: this.#handleFormSubmit,
         onRollupClick: this.#handleRollupCloseClick,
+        onResetClick: this.#handleDeleteClick,
       });
     }
 
@@ -100,6 +101,10 @@ export default class PointPresenter {
     this.#replaceFormToPoint();
     remove(this.#editComponent);
     this.#editComponent = null;
+  };
+
+  #handleDeleteClick = () => {
+    // TODO: реализовать логику удаления
   };
 
   #handleRollupCloseClick = () => {

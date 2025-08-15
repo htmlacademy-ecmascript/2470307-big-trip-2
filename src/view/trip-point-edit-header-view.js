@@ -33,9 +33,10 @@ function createDestinationOptionsTemplate(allDestinations) {
  * @param {Object} point - Точка маршрута
  * @param {Array} allDestinations - Все доступные пункты назначения
  * @param {Array} allOffers - Все доступные опции
+ * @param {boolean} isCreating - Флаг, указывающий, создается ли новая точка
  * @returns {string}
  */
-function createTripPointEditHeaderTemplate(point, allDestinations, allOffers) {
+function createTripPointEditHeaderTemplate(point, allDestinations, allOffers, isCreating) {
   const { type, destination, dateFrom, dateTo, basePrice } = point;
   const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
 
@@ -64,10 +65,10 @@ function createTripPointEditHeaderTemplate(point, allDestinations, allOffers) {
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDateTime(dateFrom)}">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom ? formatDateTime(dateFrom) : ''}">
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDateTime(dateTo)}">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo ? formatDateTime(dateTo) : ''}">
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -76,8 +77,8 @@ function createTripPointEditHeaderTemplate(point, allDestinations, allOffers) {
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
-      <button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>
+      <button class="event__reset-btn" type="reset">${isCreating ? 'Cancel' : 'Delete'}</button>
+      ${isCreating ? '' : '<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>'}
     </header>
   `;
 }

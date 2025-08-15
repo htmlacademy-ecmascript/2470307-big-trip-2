@@ -2,6 +2,7 @@ import TripPontsListView from '../view/trip-point-list-view.js';
 import { render, remove } from '../framework/render.js';
 import TripEmptyListView from '../view/trip-empty-list-view.js';
 import PointPresenter from './point-presenter.js';
+import NewPointPresenter from './new-point-presenter.js';
 import { filterUtils } from '../utils/filter.js';
 import { FilterType, EmptyListMessages, SortType } from '../constants.js';
 import SortView from '../view/sort-list-view.js';
@@ -18,6 +19,11 @@ export default class TripPresenter {
    * @type {HTMLElement}
    */
   #tripContainer = null;
+  /**
+   * @description Колбэк, который будет вызван при уничтожении формы создания точки
+   * @type {Function|null}
+   */
+  #onNewPointDestroy = null;
 
   /**
    * @description Модель точек маршрута
@@ -64,6 +70,11 @@ export default class TripPresenter {
    * @type {Map<string, PointPresenter>}
    */
   #pointPresenters = new Map();
+  /**
+   * @description Презентер для создания новой точки
+   * @type {NewPointPresenter|null}
+   */
+  #newPointPresenter = null;
 
   /**
    * @description Геттер для получения отфильтрованных точек
@@ -77,11 +88,14 @@ export default class TripPresenter {
    * @param {Object} args - Аргументы конструктора
    * @param {HTMLElement} args.tripContainer - DOM-контейнер
    * @param {PointsModel} args.pointsModel - Модель точек
+   * @param {Function} args.onNewPointDestroy - Колбэк для обработки закрытия формы новой точки
    */
-  constructor({ tripContainer, pointsModel }) {
+  constructor({ tripContainer, pointsModel, onNewPointDestroy }) {
     this.#tripContainer = tripContainer;
     this.#pointsModel = pointsModel;
+    this.#onNewPointDestroy = onNewPointDestroy;
   }
+
 
   /**
    * @description Инициализация презентера
@@ -94,12 +108,35 @@ export default class TripPresenter {
     this.#renderBoard();
   }
 
+  createPoint() {
+    this.#currentSortType = SortType.DAY;
+    // this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#pointPresenters.forEach((presenter) => presenter.resetView());
+
+    if (this.#emptyListComponent) {
+      remove(this.#emptyListComponent);
+      this.#emptyListComponent = null;
+      render(this.#tripListView, this.#tripContainer);
+    }
+
+    this.#newPointPresenter = new NewPointPresenter({
+      pointListContainer: this.#tripListView.element,
+      allOffers: this.#pointsModel.offers,
+      allDestinations: this.#pointsModel.destinations,
+      onDataChange: this.#handleDataChange,
+      onDestroy: this.#handleNewPointFormClose,
+    });
+
+    this.#newPointPresenter.init();
+  }
+
   #handleDataChange = (updatedPoint) => {
     this.#tripPoints = this.#tripPoints.map((point) => point.id === updatedPoint.id ? updatedPoint : point);
     this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
   };
 
   #handleModeChange = () => {
+    this.#newPointPresenter?.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
 
@@ -121,6 +158,15 @@ export default class TripPresenter {
 
     this.#currentSortType = sortType;
     this.#renderBoard();
+  };
+
+  #handleNewPointFormClose = () => {
+    this.#onNewPointDestroy();
+
+    if (this.points.length === 0) {
+      remove(this.#tripListView);
+      this.#renderEmptyList();
+    }
   };
 
   #renderSort() {
@@ -159,14 +205,18 @@ export default class TripPresenter {
     this.#pointPresenters.set(point.id, pointPresenter);
   }
 
+  #renderEmptyList() {
+    this.#emptyListComponent = new TripEmptyListView({ message: EmptyListMessages[this.#currentFilterType] });
+    render(this.#emptyListComponent, this.#tripContainer);
+  }
+
   /**
    * @description Рендерит весь список точек
    */
   #renderTrip() {
     const points = this.points;
     if (points.length === 0) {
-      this.#emptyListComponent = new TripEmptyListView({ message: EmptyListMessages[this.#currentFilterType] });
-      render(this.#emptyListComponent, this.#tripContainer);
+      this.#renderEmptyList();
       return;
     }
 
@@ -190,14 +240,18 @@ export default class TripPresenter {
    * @description Очищает доску (список точек и сортировку)
    */
   #clearBoard() {
+    this.#newPointPresenter?.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
 
     remove(this.#sortComponent);
+    this.#sortComponent = null;
+
     remove(this.#tripListView);
 
     if (this.#emptyListComponent) {
       remove(this.#emptyListComponent);
+      this.#emptyListComponent = null;
     }
   }
 }
