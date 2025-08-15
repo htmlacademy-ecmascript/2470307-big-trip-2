@@ -11,6 +11,8 @@ const tripControlsElement = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
 /** @type {HTMLElement} Контейнер для основной информации о путешествии */
 const tripMain = document.querySelector('.trip-main');
+/** @type {HTMLButtonElement} Кнопка создания новой точки */
+const newPointButton = tripMain.querySelector('.trip-main__event-add-btn');
 
 // Создание моделей
 const offersModel = new OffersModel();
@@ -33,10 +35,22 @@ const infoPresenter = new InfoPresenter({
 
 infoPresenter.init();
 
+const handleNewPointFormClose = () => {
+  newPointButton.disabled = false;
+};
+
 // Создание и инициализация основного презентера путешествия
 const tripPresenter = new TripPresenter({
   tripContainer: tripEventsContainer,
-  pointsModel
+  pointsModel,
+  onNewPointDestroy: handleNewPointFormClose,
 });
+
+const handleNewPointButtonClick = () => {
+  tripPresenter.createPoint();
+  newPointButton.disabled = true;
+};
+
+newPointButton.addEventListener('click', handleNewPointButtonClick);
 
 tripPresenter.init();

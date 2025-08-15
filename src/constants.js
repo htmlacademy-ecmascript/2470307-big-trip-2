@@ -50,6 +50,20 @@ const Mode = {
   EDITING: 'EDITING',
 };
 
+const BLANK_POINT = {
+  basePrice: 0,
+  dateFrom: null,
+  dateTo: null,
+  destination: {
+    description: null,
+    name: '',
+    pictures: []
+  },
+  isFavorite: false,
+  offers: [],
+  type: 'flight',
+};
+
 export {
   BasePrice,
   DateFormat,
@@ -58,5 +72,6 @@ export {
   SortType,
   TRIP_INFO_MAX_DESTINATIONS,
   EmptyListMessages,
-  Mode
+  Mode,
+  BLANK_POINT
 };
