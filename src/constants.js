@@ -1,7 +1,11 @@
 /** Количество точек для отрисовки */
-const POINT_COUNT_RENDER = 7;
+const POINT_COUNT_RENDER = 5;
 /** Максимальное количество городов в шапке */
 const TRIP_INFO_MAX_DESTINATIONS = 3;
+
+const SUGGESTED_TIME_OFFSET_IN_HOURS = 1;
+const MIN_PRICE_VALUE = 0;
+
 /** Диапазон базовой цены */
 const BasePrice = {
   MIN: 99,
@@ -14,6 +18,7 @@ const DateFormat = {
   DAY: 'D',
   HOUR_MINUTE: 'HH:mm',
   DAY_MONTH_YEAR_HOUR_MINUTE: 'DD/MM/YY HH:mm',
+  FLATPICKR: 'd/m/y H:i',
   DURATION_MINUTE: 'mm[M]',
   DURATION_HOUR_MINUTE: 'HH[H] mm[M]',
   DURATION_DAY_HOUR_MINUTE: 'DD[D] HH[H] mm[M]'
@@ -64,6 +69,10 @@ const BLANK_POINT = {
   type: 'flight',
 };
 
+const TimeUnit = {
+  HOUR: 'hour'
+};
+
 export {
   BasePrice,
   DateFormat,
@@ -73,5 +82,8 @@ export {
   TRIP_INFO_MAX_DESTINATIONS,
   EmptyListMessages,
   Mode,
-  BLANK_POINT
+  BLANK_POINT,
+  SUGGESTED_TIME_OFFSET_IN_HOURS,
+  TimeUnit,
+  MIN_PRICE_VALUE
 };

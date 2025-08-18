@@ -1,7 +1,10 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { createTripPointEditHeaderTemplate } from './trip-point-edit-header-view.js';
 import { createTripPointEditDetailsTemplate } from './trip-point-edit-details-view.js';
-import { BLANK_POINT } from '../constants.js';
+import { BLANK_POINT, DateFormat, SUGGESTED_TIME_OFFSET_IN_HOURS, TimeUnit, MIN_PRICE_VALUE } from '../constants.js';
+import dayjs from 'dayjs';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 /**
  * @description Создает шаблон для формы редактирования точки
@@ -36,6 +39,8 @@ export default class EditPointView extends AbstractStatefulView {
   #handleFormSubmit = null;
   #handleResetClick = null;
   #isCreating = false;
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
   /**
    * @param {Object} args - Аргументы конструктора
@@ -75,6 +80,20 @@ export default class EditPointView extends AbstractStatefulView {
     );
   }
 
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
+  }
+
   _restoreHandlers() {
     if (!this.#isCreating) {
       this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupClickHandler);
@@ -91,12 +110,11 @@ export default class EditPointView extends AbstractStatefulView {
       offersContainer.addEventListener('change', this.#offersChangeHandler);
     }
 
-    // Устанавливаем начальное состояние кнопки Save
     this.#toggleSaveButton();
+    this.#setDatepickers();
   }
 
   #toggleSaveButton() {
-    // Находим кнопку и устанавливаем ей свойство disabled в зависимости от валидности формы
     this.element.querySelector('.event__save-btn').disabled = this.#isFormInvalid();
   }
 
@@ -150,7 +168,7 @@ export default class EditPointView extends AbstractStatefulView {
     evt.target.value = evt.target.value.replace(/\D/g, '');
     const newPrice = parseInt(evt.target.value, 10);
     this._setState({
-      basePrice: isNaN(newPrice) ? 0 : newPrice,
+      basePrice: isNaN(newPrice) ? MIN_PRICE_VALUE : newPrice,
     });
     this.#toggleSaveButton();
   };
@@ -165,14 +183,84 @@ export default class EditPointView extends AbstractStatefulView {
     this._setState({ offers: selectedOffers });
   };
 
+  #setDatepickers() {
+    this.#initDatepickerFrom();
+    this.#initDatepickerTo();
+  }
+
+  #initDatepickerFrom() {
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+    }
+
+    const dateFromInput = this.element.querySelector('#event-start-time-1');
+    const dateFromConfig = {
+      enableTime: true,
+      'time_24hr': true,
+      dateFormat: DateFormat.FLATPICKR,
+      defaultDate: this._state.dateFrom,
+      onChange: this.#dateFromChangeHandler,
+      maxDate: this._state.dateTo,
+    };
+
+    // Если выбрана дата "до" и не выбрана дата "от"
+    if (this._state.dateTo && !this._state.dateFrom) {
+      const suggestedDate = dayjs(this._state.dateTo).subtract(SUGGESTED_TIME_OFFSET_IN_HOURS, TimeUnit.HOUR);
+      dateFromConfig.defaultHour = suggestedDate.hour();
+      dateFromConfig.defaultMinute = suggestedDate.minute();
+    }
+
+    this.#datepickerFrom = flatpickr(dateFromInput, dateFromConfig);
+  }
+
+  #initDatepickerTo() {
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+    }
+
+    const dateToInput = this.element.querySelector('#event-end-time-1');
+    const dateToConfig = {
+      enableTime: true,
+      'time_24hr': true,
+      dateFormat: DateFormat.FLATPICKR,
+      defaultDate: this._state.dateTo,
+      onChange: this.#dateToChangeHandler,
+      minDate: this._state.dateFrom,
+    };
+
+    // Если выбрана дата "от" и не выбрана дата "до"
+    if (this._state.dateFrom && !this._state.dateTo) {
+      const suggestedDate = dayjs(this._state.dateFrom).add(SUGGESTED_TIME_OFFSET_IN_HOURS, TimeUnit.HOUR);
+      dateToConfig.defaultHour = suggestedDate.hour();
+      dateToConfig.defaultMinute = suggestedDate.minute();
+    }
+
+    this.#datepickerTo = flatpickr(dateToInput, dateToConfig);
+  }
+
+  #dateFromChangeHandler = (dates) => {
+    this._setState({ dateFrom: dates[0] || null });
+    this.#initDatepickerTo(); // Переинициализируем календарь "до", чтобы обновить minDate и время по умолчанию
+    this.#toggleSaveButton();
+  };
+
+  #dateToChangeHandler = (dates) => {
+    this._setState({ dateTo: dates[0] || null });
+    this.#initDatepickerFrom(); // Переинициализируем календарь "от", чтобы обновить maxDate и время по умолчанию
+    this.#toggleSaveButton();
+  };
+
   #isFormInvalid() {
     // Проверяем, что пункт назначения выбран из списка (а не просто введен текст)
     const isDestinationInvalid = !this.#allDestinations.some((dest) => dest.name === this._state.destination.name);
 
     // Проверяем, что цена - это число больше 0
-    const isPriceInvalid = !this._state.basePrice || this._state.basePrice <= 0;
+    const isPriceInvalid = !this._state.basePrice || this._state.basePrice <= MIN_PRICE_VALUE;
 
-    return isDestinationInvalid || isPriceInvalid;
+    // Проверяем, что обе даты выбраны
+    const areDatesInvalid = !this._state.dateFrom || !this._state.dateTo;
+
+    return isDestinationInvalid || isPriceInvalid || areDatesInvalid;
   }
 
   static parsePointToState(point) {
