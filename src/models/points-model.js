@@ -1,10 +1,11 @@
+import Observable from '../framework/observable.js';
 import { getRandomPoint } from '../mock/points-mock.js';
 import { POINT_COUNT_RENDER } from '../constants.js';
 
 /**
  * @description Модель для работы с точками маршрута. Хранит и обрабатывает данные.
  */
-export default class PointsModel {
+export default class PointsModel extends Observable {
   /**
    * @description "Сырые" данные о точках
    * @type {Array}
@@ -27,6 +28,7 @@ export default class PointsModel {
    * @param {DestinationsModel} args.destinationsModel - Модель пунктов назначения
    */
   constructor({ offersModel, destinationsModel }) {
+    super();
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
     this.#points = Array.from({ length: POINT_COUNT_RENDER }, getRandomPoint);
@@ -68,5 +70,60 @@ export default class PointsModel {
         offers: selectedOffers,
       };
     });
+  }
+
+  updatePoint(updateType, update) {
+    const index = this.#points.findIndex((point) => point.id === update.id);
+
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting point');
+    }
+
+    this.#points = [
+      ...this.#points.slice(0, index),
+      this.#adaptToServer(update),
+      ...this.#points.slice(index + 1),
+    ];
+
+    this._notify(updateType, update);
+  }
+
+  addPoint(updateType, update) {
+    const newPoint = { ...this.#adaptToServer(update), id: crypto.randomUUID() };
+    this.#points = [
+      newPoint,
+      ...this.#points,
+    ];
+
+    this._notify(updateType, this.points.find((p) => p.id === newPoint.id));
+  }
+
+  deletePoint(updateType, update) {
+    const index = this.#points.findIndex((point) => point.id === update.id);
+
+    if (index === -1) {
+      throw new Error('Can\'t delete unexisting point');
+    }
+
+    this.#points = [
+      ...this.#points.slice(0, index),
+      ...this.#points.slice(index + 1),
+    ];
+
+    this._notify(updateType);
+  }
+
+  #adaptToServer(point) {
+    const adaptedPoint = { ...point,
+      'base_price': point.basePrice,
+      'date_from': point.dateFrom instanceof Date ? point.dateFrom.toISOString() : point.dateFrom,
+      'date_to': point.dateTo instanceof Date ? point.dateTo.toISOString() : point.dateTo,
+      'is_favorite': point.isFavorite,
+      destination: point.destination.id,
+      offers: point.offers.map(({id}) => id)
+    };
+
+    delete adaptedPoint.basePrice; delete adaptedPoint.dateFrom; delete adaptedPoint.dateTo; delete adaptedPoint.isFavorite;
+    return adaptedPoint;
   }
 }

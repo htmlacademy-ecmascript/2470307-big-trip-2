@@ -55,6 +55,18 @@ const Mode = {
   EDITING: 'EDITING',
 };
 
+const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH', // Обновить часть точки (например, избранное)
+  MINOR: 'MINOR', // Обновить список (например, после сортировки)
+  MAJOR: 'MAJOR', // Обновить всю доску (например, после фильтрации)
+};
+
 const BLANK_POINT = {
   basePrice: 0,
   dateFrom: null,
@@ -85,5 +97,7 @@ export {
   BLANK_POINT,
   SUGGESTED_TIME_OFFSET_IN_HOURS,
   TimeUnit,
-  MIN_PRICE_VALUE
+  MIN_PRICE_VALUE,
+  UserAction,
+  UpdateType
 };

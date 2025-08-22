@@ -2,11 +2,11 @@ import EditPointView from '../view/trip-point-edit-view.js';
 import PointView from '../view/trip-point-view.js';
 import { render, replace, remove } from '../framework/render.js';
 import { isEscapeKey } from '../utils/common.js';
-import { Mode } from '../constants.js';
+import { Mode, UserAction, UpdateType } from '../constants.js';
 
 export default class PointPresenter {
   #pointListContainer = null;
-  #handleDataChange = null;
+  #handleViewAction = null;
   #handleModeChange = null;
   #mode = Mode.DEFAULT;
 
@@ -17,11 +17,11 @@ export default class PointPresenter {
   #allOffers = [];
   #allDestinations = [];
 
-  constructor({ pointListContainer, allOffers, allDestinations, onDataChange, onModeChange }) {
+  constructor({ pointListContainer, allOffers, allDestinations, onViewAction, onModeChange }) {
     this.#pointListContainer = pointListContainer;
     this.#allOffers = allOffers;
     this.#allDestinations = allDestinations;
-    this.#handleDataChange = onDataChange;
+    this.#handleViewAction = onViewAction;
     this.#handleModeChange = onModeChange;
   }
 
@@ -97,14 +97,20 @@ export default class PointPresenter {
   };
 
   #handleFormSubmit = (point) => {
-    this.#handleDataChange(point);
+    this.#handleViewAction(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      point
+    );
     this.#replaceFormToPoint();
-    remove(this.#editComponent);
-    this.#editComponent = null;
   };
 
-  #handleDeleteClick = () => {
-    // TODO: реализовать логику удаления
+  #handleDeleteClick = (point) => {
+    this.#handleViewAction(
+      UserAction.DELETE_POINT,
+      UpdateType.MAJOR,
+      point
+    );
   };
 
   #handleRollupCloseClick = () => {
@@ -113,6 +119,10 @@ export default class PointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({ ...this.#point, isFavorite: !this.#point.isFavorite });
+    this.#handleViewAction(
+      UserAction.UPDATE_POINT,
+      UpdateType.PATCH,
+      { ...this.#point, isFavorite: !this.#point.isFavorite }
+    );
   };
 }

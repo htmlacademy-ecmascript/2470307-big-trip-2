@@ -4,6 +4,7 @@ import TripPresenter from './presenter/trip-presenter.js';
 import PointsModel from './models/points-model.js';
 import OffersModel from './models/offers-model.js';
 import DestinationsModel from './models/destinations-model.js';
+import FilterModel from './models/filter-model.js';
 
 /** @type {HTMLElement} Контейнер для фильтров */
 const tripControlsElement = document.querySelector('.trip-controls__filters');
@@ -18,11 +19,13 @@ const newPointButton = tripMain.querySelector('.trip-main__event-add-btn');
 const offersModel = new OffersModel();
 const destinationsModel = new DestinationsModel();
 const pointsModel = new PointsModel({ offersModel, destinationsModel });
+const filterModel = new FilterModel();
 
 // Создание и инициализация презентера для фильтров
 const filterPresenter = new FilterPresenter({
   filtersContainer: tripControlsElement,
-  pointsModel
+  pointsModel,
+  filterModel
 });
 
 filterPresenter.init();
@@ -43,6 +46,7 @@ const handleNewPointFormClose = () => {
 const tripPresenter = new TripPresenter({
   tripContainer: tripEventsContainer,
   pointsModel,
+  filterModel,
   onNewPointDestroy: handleNewPointFormClose,
 });
 
