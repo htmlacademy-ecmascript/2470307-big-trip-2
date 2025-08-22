@@ -3,12 +3,12 @@ import { render, remove } from '../framework/render.js';
 import TripEmptyListView from '../view/trip-empty-list-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
+import { sortPointsByDate, sortPointsByPrice, sortPointsByTime } from '../utils/point.js';
 import { filterUtils } from '../utils/filter.js';
-import { FilterType, EmptyListMessages, SortType } from '../constants.js';
+import { FilterType, EmptyListMessages, SortType, UpdateType, UserAction } from '../constants.js';
 import SortView from '../view/sort-list-view.js';
 import { SORT_OPTIONS } from '../data/sort-data.js';
 import SortItemView from '../view/sort-item-view.js';
-import { sortPointsByDate, sortPointsByPrice, sortPointsByTime } from '../utils/point.js';
 
 /**
  * @description Главный презентер, управляет отрисовкой списка точек
@@ -30,6 +30,11 @@ export default class TripPresenter {
    * @type {PointsModel}
    */
   #pointsModel = null;
+  /**
+   * @description Модель фильтров
+   * @type {FilterModel}
+   */
+  #filterModel = null;
 
   /**
    * @description Компонент списка (ul)
@@ -37,11 +42,6 @@ export default class TripPresenter {
    */
   #tripListView = new TripPontsListView();
 
-  /**
-   * @description Текущий тип фильтра
-   * @type {string}
-   */
-  #currentFilterType = FilterType.EVERYTHING;
   /**
    * @description Текущий тип сортировки
    * @type {string}
@@ -60,12 +60,6 @@ export default class TripPresenter {
   #emptyListComponent = null;
 
   /**
-   * @description Массив точек маршрута
-   * @type {Array}
-   */
-  #tripPoints = [];
-
-  /**
    * @description Коллекция дочерних презентеров
    * @type {Map<string, PointPresenter>}
    */
@@ -81,19 +75,35 @@ export default class TripPresenter {
    * @returns {Array}
    */
   get points() {
-    return filterUtils[this.#currentFilterType](this.#tripPoints);
+    const filterType = this.#filterModel.filter;
+    const points = this.#pointsModel.points;
+    const filteredPoints = filterUtils[filterType](points);
+
+    switch (this.#currentSortType) {
+      case SortType.PRICE:
+        return sortPointsByPrice(filteredPoints);
+      case SortType.TIME:
+        return sortPointsByTime(filteredPoints);
+    }
+
+    return sortPointsByDate(filteredPoints);
   }
 
   /**
    * @param {Object} args - Аргументы конструктора
    * @param {HTMLElement} args.tripContainer - DOM-контейнер
    * @param {PointsModel} args.pointsModel - Модель точек
+   * @param {FilterModel} args.filterModel - Модель фильтров
    * @param {Function} args.onNewPointDestroy - Колбэк для обработки закрытия формы новой точки
    */
-  constructor({ tripContainer, pointsModel, onNewPointDestroy }) {
+  constructor({ tripContainer, pointsModel, filterModel, onNewPointDestroy }) {
     this.#tripContainer = tripContainer;
     this.#pointsModel = pointsModel;
+    this.#filterModel = filterModel;
     this.#onNewPointDestroy = onNewPointDestroy;
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
 
@@ -101,20 +111,16 @@ export default class TripPresenter {
    * @description Инициализация презентера
    */
   init() {
-    this.#tripPoints = [...this.#pointsModel.points];
-    // Сортируем точки по умолчанию (по дате)
-    this.#tripPoints = sortPointsByDate(this.#tripPoints);
-
     this.#renderBoard();
   }
 
   createPoint() {
     this.#currentSortType = SortType.DAY;
-    // this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this.#pointPresenters.forEach((presenter) => presenter.resetView());
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
 
     if (this.#emptyListComponent) {
       remove(this.#emptyListComponent);
+      this.#renderSort();
       this.#emptyListComponent = null;
       render(this.#tripListView, this.#tripContainer);
     }
@@ -123,16 +129,41 @@ export default class TripPresenter {
       pointListContainer: this.#tripListView.element,
       allOffers: this.#pointsModel.offers,
       allDestinations: this.#pointsModel.destinations,
-      onDataChange: this.#handleDataChange,
+      onViewAction: this.#handleViewAction,
       onDestroy: this.#handleNewPointFormClose,
     });
 
     this.#newPointPresenter.init();
   }
 
-  #handleDataChange = (updatedPoint) => {
-    this.#tripPoints = this.#tripPoints.map((point) => point.id === updatedPoint.id ? updatedPoint : point);
-    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
+  #handleViewAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.UPDATE_POINT:
+        this.#pointsModel.updatePoint(updateType, update);
+        break;
+      case UserAction.ADD_POINT:
+        this.#pointsModel.addPoint(updateType, update);
+        break;
+      case UserAction.DELETE_POINT:
+        this.#pointsModel.deletePoint(updateType, update);
+        break;
+    }
+  };
+
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#pointPresenters.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        this.#clearBoard();
+        this.#renderBoard();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearBoard({ resetSortType: true });
+        this.#renderBoard();
+        break;
+    }
   };
 
   #handleModeChange = () => {
@@ -145,24 +176,13 @@ export default class TripPresenter {
       return;
     }
 
-    switch (sortType) {
-      case SortType.PRICE:
-        this.#tripPoints = sortPointsByPrice(this.#tripPoints);
-        break;
-      case SortType.TIME:
-        this.#tripPoints = sortPointsByTime(this.#tripPoints);
-        break;
-      case SortType.DAY:
-        this.#tripPoints = sortPointsByDate(this.#tripPoints);
-    }
-
     this.#currentSortType = sortType;
+    this.#clearBoard();
     this.#renderBoard();
   };
 
   #handleNewPointFormClose = () => {
     this.#onNewPointDestroy();
-
     if (this.points.length === 0) {
       remove(this.#tripListView);
       this.#renderEmptyList();
@@ -198,7 +218,7 @@ export default class TripPresenter {
       pointListContainer: this.#tripListView.element,
       allOffers: this.#pointsModel.offers,
       allDestinations: this.#pointsModel.destinations,
-      onDataChange: this.#handleDataChange,
+      onViewAction: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
     pointPresenter.init(point);
@@ -206,7 +226,7 @@ export default class TripPresenter {
   }
 
   #renderEmptyList() {
-    this.#emptyListComponent = new TripEmptyListView({ message: EmptyListMessages[this.#currentFilterType] });
+    this.#emptyListComponent = new TripEmptyListView({ message: EmptyListMessages[this.#filterModel.filter] });
     render(this.#emptyListComponent, this.#tripContainer);
   }
 
@@ -217,6 +237,7 @@ export default class TripPresenter {
     const points = this.points;
     if (points.length === 0) {
       this.#renderEmptyList();
+      remove(this.#sortComponent);
       return;
     }
 
@@ -239,7 +260,11 @@ export default class TripPresenter {
   /**
    * @description Очищает доску (список точек и сортировку)
    */
-  #clearBoard() {
+  #clearBoard({ resetSortType = false } = {}) {
+    if (resetSortType) {
+      this.#currentSortType = SortType.DAY;
+    }
+
     this.#newPointPresenter?.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();

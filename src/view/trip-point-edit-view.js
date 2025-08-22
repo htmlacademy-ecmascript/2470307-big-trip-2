@@ -18,7 +18,7 @@ function createEditTripPointsTemplate(point, allOffers, allDestinations, isCreat
   const allOffersForType = allOffers.find((offer) => offer.type === point.type)?.offers;
 
   return (`
-    <form class="event event--edit" action="#" method="post">
+    <form class="event event--edit" action="#" method="post" autocomplete="off">
       ${createTripPointEditHeaderTemplate(point, allDestinations, allOffers, isCreating)}
       ${createTripPointEditDetailsTemplate(point, allOffersForType)}
     </form>
@@ -125,7 +125,7 @@ export default class EditPointView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(EditPointView.parseStateToPoint(this._state));
+    this.#handleFormSubmit(this._state);
   };
 
   #resetClickHandler = (evt) => {

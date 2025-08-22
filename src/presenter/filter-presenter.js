@@ -1,8 +1,8 @@
 import FiltersView from '../view/filters-list-view.js';
-import FilterItemView from '../view/filter-item-view.js';
-import { render, RenderPosition } from '../framework/render.js';
-import { FilterType } from '../constants.js';
+import { render, replace, remove } from '../framework/render.js';
+import { UpdateType } from '../constants.js';
 import { filterUtils } from '../utils/filter.js';
+import { FILTERS } from '../data/filter-data.js';
 
 /**
  * @description Презентер для фильтров
@@ -18,38 +18,69 @@ export default class FilterPresenter {
    * @type {PointsModel}
    */
   #pointsModel = null;
+  /**
+   * @description Модель фильтров
+   * @type {FilterModel}
+   */
+  #filterModel = null;
+
+  #filtersComponent = null;
 
   /**
    * @param {Object} args - Аргументы конструктора
    * @param {HTMLElement} args.filtersContainer - DOM-контейнер для фильтров
    * @param {PointsModel} args.pointsModel - Модель точек
+   * @param {FilterModel} args.filterModel - Модель фильтров
    */
-  constructor({ filtersContainer, pointsModel }) {
+  constructor({ filtersContainer, pointsModel, filterModel }) {
     this.#filtersContainer = filtersContainer;
     this.#pointsModel = pointsModel;
+    this.#filterModel = filterModel;
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
+  }
+
+  get filters() {
+    const points = this.#pointsModel.points;
+
+    return FILTERS.map((filter) => ({
+      ...filter,
+      isDisabled: filterUtils[filter.id](points).length === 0,
+    }));
   }
 
   /**
    * @description Инициализирует презентер: рендерит компонент фильтров
    */
   init() {
-    const points = this.#pointsModel.points;
-    const filters = Object.values(FilterType).map((type) => ({
-      id: type,
-      value: type,
-      label: type.charAt(0).toUpperCase() + type.slice(1),
-      // Для каждого типа фильтра вызываем соответствующую функцию-фильтратор
-      // и проверяем, есть ли в результате точки.
-      isDisabled: filterUtils[type](points).length === 0,
-      isChecked: type === FilterType.EVERYTHING,
-    }));
+    const filters = this.filters;
+    const prevFiltersComponent = this.#filtersComponent;
 
-    const filtersComponent = new FiltersView();
-    render(filtersComponent, this.#filtersContainer, RenderPosition.BEFOREEND);
+    this.#filtersComponent = new FiltersView({
+      filters,
+      currentFilterType: this.#filterModel.filter,
+      onFilterTypeChange: this.#handleFilterTypeChange,
+    });
 
-    for (const f of filters) {
-      const filterItemComponent = new FilterItemView({ filter: f });
-      render(filterItemComponent, filtersComponent.element);
+    if (prevFiltersComponent === null) {
+      render(this.#filtersComponent, this.#filtersContainer);
+      return;
     }
+
+    replace(this.#filtersComponent, prevFiltersComponent);
+    remove(prevFiltersComponent);
   }
+
+  #handleModelEvent = () => {
+    this.init();
+  };
+
+  #handleFilterTypeChange = (filterType) => {
+    if (this.#filterModel.filter === filterType) {
+      return;
+    }
+
+    this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
+  };
 }

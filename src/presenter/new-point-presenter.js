@@ -1,10 +1,11 @@
 import EditPointView from '../view/trip-point-edit-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { isEscapeKey } from '../utils/common.js';
+import { UserAction, UpdateType } from '../constants.js';
 
 export default class NewPointPresenter {
   #pointListContainer = null;
-  #handleDataChange = null;
+  #handleViewAction = null;
   #handleDestroy = null;
 
   #editComponent = null;
@@ -12,11 +13,11 @@ export default class NewPointPresenter {
   #allOffers = [];
   #allDestinations = [];
 
-  constructor({ pointListContainer, allOffers, allDestinations, onDataChange, onDestroy }) {
+  constructor({ pointListContainer, allOffers, allDestinations, onViewAction, onDestroy }) {
     this.#pointListContainer = pointListContainer;
     this.#allOffers = allOffers;
     this.#allDestinations = allDestinations;
-    this.#handleDataChange = onDataChange;
+    this.#handleViewAction = onViewAction;
     this.#handleDestroy = onDestroy;
   }
 
@@ -56,10 +57,12 @@ export default class NewPointPresenter {
     }
   };
 
-  #handleFormSubmit = () => {
-    // Пока не реализуем сохранение, просто уничтожаем форму
-    // this.#handleDataChange(point);
-    this.destroy();
+  #handleFormSubmit = (point) => {
+    this.#handleViewAction(
+      UserAction.ADD_POINT,
+      UpdateType.MAJOR,
+      point,
+    );
   };
 
   #handleCancelClick = () => {
