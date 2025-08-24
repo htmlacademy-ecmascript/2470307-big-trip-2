@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { DateFormat, TRIP_INFO_MAX_DESTINATIONS } from '../constants.js';
+import { DateFormat, TRIP_INFO_MAX_DESTINATIONS, INITIAL_COST_VALUE } from '../constants.js';
 
 const sortPointsByDate = (points) => [...points].sort((dateA, dateB) => dayjs(dateA.dateFrom).diff(dayjs(dateB.dateFrom)));
 
@@ -26,10 +26,13 @@ const getTripTitle = (points) => {
  * @returns {string}
  */
 const getTripDates = (points) => {
+  // Массив points отсортирован по дате начала. Берем первую точку.
   const startDate = dayjs(points[0].dateFrom);
-  const endDate = dayjs(points[points.length - 1].dateTo);
+  // Чтобы найти правильную дату окончания, нужно найти максимальную дату окончания среди всех точек.
+  const endDates = points.map((point) => dayjs(point.dateTo));
+  const endDate = dayjs(Math.max.apply(null, endDates));
 
-  if (startDate.month() === endDate.month()) {
+  if (startDate.format('YYYY-MM') === endDate.format('YYYY-MM')) {
     return `${startDate.format(DateFormat.MONTH_DAY)}&nbsp;&mdash;&nbsp;${endDate.format(DateFormat.DAY)}`;
   }
 
@@ -42,11 +45,11 @@ const getTripDates = (points) => {
  * @returns {number}
  */
 const getTripCost = (points) => {
-  const totalBasePrice = points.reduce((sum, point) => sum + point.basePrice, 0);
+  const totalBasePrice = points.reduce((sum, point) => sum + point.basePrice, INITIAL_COST_VALUE);
   const totalOffersPrice = points.reduce((sum, point) => {
-    const offersSum = point.offers.reduce((offerSum, offer) => offerSum + offer.price, 0);
+    const offersSum = point.offers.reduce((offerSum, offer) => offerSum + offer.price, INITIAL_COST_VALUE);
     return sum + offersSum;
-  }, 0);
+  }, INITIAL_COST_VALUE);
 
   return totalBasePrice + totalOffersPrice;
 };

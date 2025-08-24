@@ -1,7 +1,7 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { createTripPointEditHeaderTemplate } from './trip-point-edit-header-view.js';
 import { createTripPointEditDetailsTemplate } from './trip-point-edit-details-view.js';
-import { BLANK_POINT, DateFormat, SUGGESTED_TIME_OFFSET_IN_HOURS, TimeUnit, MIN_PRICE_VALUE } from '../constants.js';
+import { BLANK_POINT, DateFormat, SUGGESTED_TIME_OFFSET_IN_HOURS, TimeUnit, MIN_PRICE_VALUE, REGEX_ONLY_DIGITS } from '../constants.js';
 import dayjs from 'dayjs';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
@@ -125,7 +125,7 @@ export default class EditPointView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(this._state);
+    this.#handleFormSubmit(EditPointView.parseStateToPoint(this._state));
   };
 
   #resetClickHandler = (evt) => {
@@ -165,7 +165,7 @@ export default class EditPointView extends AbstractStatefulView {
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
     // Разрешаем ввод только цифр
-    evt.target.value = evt.target.value.replace(/\D/g, '');
+    evt.target.value = evt.target.value.replace(REGEX_ONLY_DIGITS, '');
     const newPrice = parseInt(evt.target.value, 10);
     this._setState({
       basePrice: isNaN(newPrice) ? MIN_PRICE_VALUE : newPrice,
@@ -264,11 +264,20 @@ export default class EditPointView extends AbstractStatefulView {
   }
 
   static parsePointToState(point) {
-    return { ...point };
+    return {
+      ...point,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
   }
 
   static parseStateToPoint(state) {
     const point = { ...state };
+
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
     return point;
   }
 }

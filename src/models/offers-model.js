@@ -1,14 +1,22 @@
-import { offers } from '../mock/offers-mock.js';
-
 /**
  * @description Модель для работы с дополнительными опциями
  */
 export default class OffersModel {
+  #pointsApiService = null;
   /**
    * @description Дополнительные опции
    * @type {Array}
    */
-  #offers = offers;
+  #offers = [];
+
+  constructor({ pointsApiService }) {
+    this.#pointsApiService = pointsApiService;
+  }
+
+  async init() {
+    this.#offers = await this.#pointsApiService.offers;
+    return this.#offers;
+  }
 
   /**
    * @description Геттер для получения всех опций
