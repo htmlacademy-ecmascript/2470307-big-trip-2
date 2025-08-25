@@ -96,21 +96,40 @@ export default class PointPresenter {
     this.#replacePointToForm();
   };
 
-  #handleFormSubmit = (point) => {
-    this.#handleViewAction(
-      UserAction.UPDATE_POINT,
-      UpdateType.MINOR,
-      point
-    );
-    this.#replaceFormToPoint();
+  #handleFormSubmit = async (point) => {
+    this.#editComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+    try {
+      await this.#handleViewAction(
+        UserAction.UPDATE_POINT,
+        UpdateType.MINOR,
+        point
+      );
+      this.#replaceFormToPoint();
+    } catch (err) {
+      this.#editComponent.shake(() => {
+        this.#editComponent.updateElement({
+          isDisabled: false,
+          isSaving: false,
+        });
+      });
+    }
   };
 
-  #handleDeleteClick = (point) => {
-    this.#handleViewAction(
-      UserAction.DELETE_POINT,
-      UpdateType.MAJOR,
-      point
-    );
+  #handleDeleteClick = async (point) => {
+    this.#editComponent.updateElement({ isDisabled: true, isDeleting: true });
+    try {
+      await this.#handleViewAction(UserAction.DELETE_POINT, UpdateType.MAJOR, point);
+    } catch (err) {
+      this.#editComponent.shake(() => {
+        this.#editComponent.updateElement({
+          isDisabled: false,
+          isDeleting: false,
+        });
+      });
+    }
   };
 
   #handleRollupCloseClick = () => {

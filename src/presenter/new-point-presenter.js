@@ -57,12 +57,25 @@ export default class NewPointPresenter {
     }
   };
 
-  #handleFormSubmit = (point) => {
-    this.#handleViewAction(
-      UserAction.ADD_POINT,
-      UpdateType.MAJOR,
-      point,
-    );
+  #handleFormSubmit = async (point) => {
+    this.#editComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+    try {
+      await this.#handleViewAction(
+        UserAction.ADD_POINT,
+        UpdateType.MAJOR,
+        point,
+      );
+    } catch (err) {
+      this.#editComponent.shake(() => {
+        this.#editComponent.updateElement({
+          isDisabled: false,
+          isSaving: false,
+        });
+      });
+    }
   };
 
   #handleCancelClick = () => {

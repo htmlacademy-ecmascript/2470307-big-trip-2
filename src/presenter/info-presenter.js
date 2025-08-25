@@ -1,5 +1,5 @@
 import InfoView from '../view/info-view.js';
-import { render, RenderPosition } from '../framework/render.js';
+import { render, RenderPosition, remove, replace } from '../framework/render.js';
 import { sortPointsByDate, getTripTitle, getTripDates, getTripCost } from '../utils/point.js';
 
 /**
@@ -16,6 +16,11 @@ export default class InfoPresenter {
    * @type {PointsModel}
    */
   #pointsModel = null;
+  /**
+   * @description Компонент с информацией о путешествии
+   * @type {InfoView|null}
+   */
+  #infoComponent = null;
 
   /**
    * @param {Object} args - Аргументы конструктора
@@ -25,15 +30,20 @@ export default class InfoPresenter {
   constructor({ infoContainer, pointsModel }) {
     this.#infoContainer = infoContainer;
     this.#pointsModel = pointsModel;
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
   /**
    * @description Инициализирует презентер: рендерит компонент с информацией
    */
   init() {
+    const prevInfoComponent = this.#infoComponent;
     const points = this.#pointsModel.points;
 
     if (points.length === 0) {
+      remove(prevInfoComponent);
+      this.#infoComponent = null;
       return;
     }
 
@@ -42,12 +52,18 @@ export default class InfoPresenter {
     const dates = getTripDates(sortedPoints);
     const cost = getTripCost(sortedPoints);
 
-    const infoView = new InfoView({ title, dates, cost });
+    this.#infoComponent = new InfoView({ title, dates, cost });
 
-    render(
-      infoView,
-      this.#infoContainer,
-      RenderPosition.AFTERBEGIN
-    );
+    if (prevInfoComponent === null) {
+      render(this.#infoComponent, this.#infoContainer, RenderPosition.AFTERBEGIN);
+      return;
+    }
+
+    replace(this.#infoComponent, prevInfoComponent);
+    remove(prevInfoComponent);
   }
+
+  #handleModelEvent = () => {
+    this.init();
+  };
 }

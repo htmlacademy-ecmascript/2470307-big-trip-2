@@ -5,6 +5,8 @@ import PointsModel from './models/points-model.js';
 import OffersModel from './models/offers-model.js';
 import DestinationsModel from './models/destinations-model.js';
 import FilterModel from './models/filter-model.js';
+import PointsApiService from './points-api-service.js';
+import { AUTHORIZATION, END_POINT } from './constants.js';
 
 /** @type {HTMLElement} Контейнер для фильтров */
 const tripControlsElement = document.querySelector('.trip-controls__filters');
@@ -15,11 +17,13 @@ const tripMain = document.querySelector('.trip-main');
 /** @type {HTMLButtonElement} Кнопка создания новой точки */
 const newPointButton = tripMain.querySelector('.trip-main__event-add-btn');
 
+const pointsApiService = new PointsApiService(END_POINT, AUTHORIZATION);
+
 // Создание моделей
-const offersModel = new OffersModel();
-const destinationsModel = new DestinationsModel();
-const pointsModel = new PointsModel({ offersModel, destinationsModel });
+const offersModel = new OffersModel({ pointsApiService });
+const destinationsModel = new DestinationsModel({ pointsApiService });
 const filterModel = new FilterModel();
+const pointsModel = new PointsModel({ offersModel, destinationsModel, pointsApiService });
 
 // Создание и инициализация презентера для фильтров
 const filterPresenter = new FilterPresenter({
@@ -28,15 +32,10 @@ const filterPresenter = new FilterPresenter({
   filterModel
 });
 
-filterPresenter.init();
-
-// Создание и инициализация презентера для основной информации
 const infoPresenter = new InfoPresenter({
   infoContainer: tripMain,
   pointsModel
 });
-
-infoPresenter.init();
 
 const handleNewPointFormClose = () => {
   newPointButton.disabled = false;
@@ -55,6 +54,24 @@ const handleNewPointButtonClick = () => {
   newPointButton.disabled = true;
 };
 
-newPointButton.addEventListener('click', handleNewPointButtonClick);
+newPointButton.disabled = true;
 
-tripPresenter.init();
+tripPresenter.init(); // Сначала запускаем главный презентер, он покажет "Loading..."
+
+Promise.all([
+  offersModel.init(),
+  destinationsModel.init(),
+]).then(() => {
+  // Теперь, когда справочники загружены, можно инициализировать
+  // зависимые от них презентеры.
+  filterPresenter.init();
+  infoPresenter.init();
+  // И запускаем загрузку основных данных.
+  pointsModel.init().finally(() => {
+    newPointButton.disabled = false; // Включаем кнопку только после загрузки точек.
+  });
+}).catch(() => {
+  pointsModel.init(); // Если справочники не загрузились, всё равно запускаем загрузку точек
+});
+
+newPointButton.addEventListener('click', handleNewPointButtonClick);

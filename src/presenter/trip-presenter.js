@@ -1,5 +1,5 @@
 import TripPontsListView from '../view/trip-point-list-view.js';
-import { render, remove } from '../framework/render.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
 import TripEmptyListView from '../view/trip-empty-list-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
@@ -9,6 +9,7 @@ import { FilterType, EmptyListMessages, SortType, UpdateType, UserAction } from 
 import SortView from '../view/sort-list-view.js';
 import { SORT_OPTIONS } from '../data/sort-data.js';
 import SortItemView from '../view/sort-item-view.js';
+import LoadingView from '../view/loading-view.js';
 
 /**
  * @description Главный презентер, управляет отрисовкой списка точек
@@ -58,6 +59,11 @@ export default class TripPresenter {
    * @type {TripEmptyListView|null}
    */
   #emptyListComponent = null;
+  /**
+   * @description Компонент загрузки
+   * @type {LoadingView}
+   */
+  #loadingComponent = new LoadingView();
 
   /**
    * @description Коллекция дочерних презентеров
@@ -69,6 +75,12 @@ export default class TripPresenter {
    * @type {NewPointPresenter|null}
    */
   #newPointPresenter = null;
+
+  /**
+   * @description Флаг, указывающий на состояние загрузки
+   * @type {boolean}
+   */
+  #isLoading = true;
 
   /**
    * @description Геттер для получения отфильтрованных точек
@@ -115,6 +127,7 @@ export default class TripPresenter {
   }
 
   createPoint() {
+    this.#handleModeChange();
     this.#currentSortType = SortType.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
 
@@ -136,10 +149,10 @@ export default class TripPresenter {
     this.#newPointPresenter.init();
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#pointsModel.updatePoint(updateType, update);
+        await this.#pointsModel.updatePoint(updateType, update);
         break;
       case UserAction.ADD_POINT:
         this.#pointsModel.addPoint(updateType, update);
@@ -161,6 +174,11 @@ export default class TripPresenter {
         break;
       case UpdateType.MAJOR:
         this.#clearBoard({ resetSortType: true });
+        this.#renderBoard();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#renderBoard();
         break;
     }
@@ -188,6 +206,10 @@ export default class TripPresenter {
       this.#renderEmptyList();
     }
   };
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#tripContainer, RenderPosition.AFTERBEGIN);
+  }
 
   #renderSort() {
     this.#sortComponent = new SortView({
@@ -252,7 +274,10 @@ export default class TripPresenter {
    * @description Отрисовывает доску со всеми компонентами
    */
   #renderBoard() {
-    this.#clearBoard();
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
     this.#renderSort();
     this.#renderTrip();
   }
@@ -270,6 +295,7 @@ export default class TripPresenter {
     this.#pointPresenters.clear();
 
     remove(this.#sortComponent);
+    remove(this.#loadingComponent);
     this.#sortComponent = null;
 
     remove(this.#tripListView);

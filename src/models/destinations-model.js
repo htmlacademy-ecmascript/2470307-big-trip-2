@@ -1,14 +1,22 @@
-import { destinations } from '../mock/destinations-mock.js';
-
 /**
  * @description Модель для работы с пунктами назначения
  */
 export default class DestinationsModel {
+  #pointsApiService = null;
   /**
    * @description Пункты назначения
    * @type {Array}
    */
-  #destinations = destinations;
+  #destinations = [];
+
+  constructor({ pointsApiService }) {
+    this.#pointsApiService = pointsApiService;
+  }
+
+  async init() {
+    this.#destinations = await this.#pointsApiService.destinations;
+    return this.#destinations;
+  }
 
   /**
    * @description Геттер для получения всех пунктов назначения
