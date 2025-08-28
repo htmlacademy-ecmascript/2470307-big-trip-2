@@ -1,4 +1,4 @@
-import EditPointView from '../view/trip-point-edit-view.js';
+import NewPointView from '../view/new-point-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { isEscapeKey } from '../utils/common.js';
 import { UserAction, UpdateType } from '../constants.js';
@@ -26,16 +26,19 @@ export default class NewPointPresenter {
       return;
     }
 
-    this.#editComponent = new EditPointView({
+    this.#editComponent = new NewPointView({
       allOffers: this.#allOffers,
       allDestinations: this.#allDestinations,
       onFormSubmit: this.#handleFormSubmit,
-      onResetClick: this.#handleCancelClick,
-      isCreating: true,
+      onCancelClick: this.#handleCancelClick,
     });
 
     render(this.#editComponent, this.#pointListContainer, RenderPosition.AFTERBEGIN);
     document.addEventListener('keydown', this.#escKeyDownHandler);
+  }
+
+  get isBusy() {
+    return this.#editComponent?._state.isDisabled ?? false;
   }
 
   destroy() {
@@ -70,10 +73,12 @@ export default class NewPointPresenter {
       );
     } catch (err) {
       this.#editComponent.shake(() => {
-        this.#editComponent.updateElement({
-          isDisabled: false,
-          isSaving: false,
-        });
+        if (this.#editComponent) {
+          this.#editComponent.updateElement({
+            isDisabled: false,
+            isSaving: false,
+          });
+        }
       });
     }
   };

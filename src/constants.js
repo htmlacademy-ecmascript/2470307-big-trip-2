@@ -14,6 +14,7 @@ const REGEX_ONLY_DIGITS = /\D/g;
 /** Форматы дат */
 const DateFormat = {
   MONTH_DAY: 'MMM D',
+  HEADER_DATE: 'D MMM',
   DAY: 'D',
   HOUR_MINUTE: 'HH:mm',
   DAY_MONTH_YEAR_HOUR_MINUTE: 'DD/MM/YY HH:mm',
@@ -37,6 +38,9 @@ const EmptyListMessages = {
   [FilterType.PRESENT]: 'There are no present events now',
   [FilterType.FUTURE]: 'There are no future events now',
 };
+
+/** Сообщение при ошибке загрузки данных */
+const FAILED_LOAD_MESSAGE = 'Failed to load latest route information';
 
 /** Типы сортировки */
 const SortType = {
@@ -87,12 +91,19 @@ const TimeUnit = {
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
 };
 
 const ApiUrl = {
   POINTS: 'points',
   DESTINATIONS: 'destinations',
   OFFERS: 'offers',
+};
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
 };
 
 export {
@@ -110,6 +121,7 @@ export {
   DateFormat,
   FilterType,
   EmptyListMessages,
+  FAILED_LOAD_MESSAGE,
   SortType,
   Mode,
   UserAction,
@@ -118,4 +130,5 @@ export {
   TimeUnit,
   Method,
   ApiUrl,
+  TimeLimit,
 };

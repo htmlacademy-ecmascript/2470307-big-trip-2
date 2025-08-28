@@ -32,11 +32,12 @@ const getTripDates = (points) => {
   const endDates = points.map((point) => dayjs(point.dateTo));
   const endDate = dayjs(Math.max.apply(null, endDates));
 
-  if (startDate.format('YYYY-MM') === endDate.format('YYYY-MM')) {
-    return `${startDate.format(DateFormat.MONTH_DAY)}&nbsp;&mdash;&nbsp;${endDate.format(DateFormat.DAY)}`;
+  // Если путешествие длится один день, показываем только одну дату
+  if (startDate.isSame(endDate, 'day')) {
+    return startDate.format(DateFormat.HEADER_DATE);
   }
 
-  return `${startDate.format(DateFormat.MONTH_DAY)}&nbsp;&mdash;&nbsp;${endDate.format(DateFormat.MONTH_DAY)}`;
+  return `${startDate.format(DateFormat.HEADER_DATE)}&nbsp;&mdash;&nbsp;${endDate.format(DateFormat.HEADER_DATE)}`;
 };
 
 /**

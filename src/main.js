@@ -62,16 +62,15 @@ Promise.all([
   offersModel.init(),
   destinationsModel.init(),
 ]).then(() => {
-  // Теперь, когда справочники загружены, можно инициализировать
-  // зависимые от них презентеры.
   filterPresenter.init();
   infoPresenter.init();
-  // И запускаем загрузку основных данных.
-  pointsModel.init().finally(() => {
-    newPointButton.disabled = false; // Включаем кнопку только после загрузки точек.
+  pointsModel.init().then((isSuccess) => {
+    if (isSuccess) {
+      newPointButton.disabled = false;
+    }
   });
 }).catch(() => {
-  pointsModel.init(); // Если справочники не загрузились, всё равно запускаем загрузку точек
+  pointsModel.init(true);
 });
 
 newPointButton.addEventListener('click', handleNewPointButtonClick);

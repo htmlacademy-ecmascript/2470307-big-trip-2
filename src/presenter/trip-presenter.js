@@ -5,11 +5,12 @@ import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import { sortPointsByDate, sortPointsByPrice, sortPointsByTime } from '../utils/point.js';
 import { filterUtils } from '../utils/filter.js';
-import { FilterType, EmptyListMessages, SortType, UpdateType, UserAction } from '../constants.js';
+import { FilterType, EmptyListMessages, SortType, UpdateType, UserAction, TimeLimit, FAILED_LOAD_MESSAGE } from '../constants.js';
 import SortView from '../view/sort-list-view.js';
 import { SORT_OPTIONS } from '../data/sort-data.js';
 import SortItemView from '../view/sort-item-view.js';
 import LoadingView from '../view/loading-view.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
 /**
  * @description Главный презентер, управляет отрисовкой списка точек
@@ -81,6 +82,14 @@ export default class TripPresenter {
    * @type {boolean}
    */
   #isLoading = true;
+  /**
+   * @description Экземпляр блокировщика интерфейса
+   * @type {UiBlocker}
+   */
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   /**
    * @description Геттер для получения отфильтрованных точек
@@ -127,7 +136,11 @@ export default class TripPresenter {
   }
 
   createPoint() {
-    this.#handleModeChange();
+    const canCreate = this.#handleModeChange();
+    if (!canCreate) {
+      return;
+    }
+
     this.#currentSortType = SortType.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
 
@@ -149,17 +162,29 @@ export default class TripPresenter {
     this.#newPointPresenter.init();
   }
 
-  #handleViewAction = async (actionType, updateType, update) => {
-    switch (actionType) {
-      case UserAction.UPDATE_POINT:
-        await this.#pointsModel.updatePoint(updateType, update);
-        break;
-      case UserAction.ADD_POINT:
-        this.#pointsModel.addPoint(updateType, update);
-        break;
-      case UserAction.DELETE_POINT:
-        this.#pointsModel.deletePoint(updateType, update);
-        break;
+  #handleViewAction = async (actionType, updateType, update, options = {}) => {
+    const { blockUi = true } = options;
+
+    if (blockUi) {
+      this.#uiBlocker.block();
+    }
+
+    try {
+      switch (actionType) {
+        case UserAction.UPDATE_POINT:
+          await this.#pointsModel.updatePoint(updateType, update);
+          break;
+        case UserAction.ADD_POINT:
+          await this.#pointsModel.addPoint(updateType, update);
+          break;
+        case UserAction.DELETE_POINT:
+          await this.#pointsModel.deletePoint(updateType, update);
+          break;
+      }
+    } finally {
+      if (blockUi) {
+        this.#uiBlocker.unblock();
+      }
     }
   };
 
@@ -179,14 +204,23 @@ export default class TripPresenter {
       case UpdateType.INIT:
         this.#isLoading = false;
         remove(this.#loadingComponent);
+        if (data?.isError) {
+          this.#renderFailedLoad();
+          return;
+        }
         this.#renderBoard();
         break;
     }
   };
 
   #handleModeChange = () => {
+    if (this.#isAnyPresenterBusy()) {
+      return false;
+    }
+
     this.#newPointPresenter?.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
+    return true;
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -199,6 +233,20 @@ export default class TripPresenter {
     this.#renderBoard();
   };
 
+  #isAnyPresenterBusy() {
+    if (this.#newPointPresenter?.isBusy) {
+      return true;
+    }
+
+    for (const presenter of this.#pointPresenters.values()) {
+      if (presenter.isBusy) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   #handleNewPointFormClose = () => {
     this.#onNewPointDestroy();
     if (this.points.length === 0) {
@@ -209,6 +257,11 @@ export default class TripPresenter {
 
   #renderLoading() {
     render(this.#loadingComponent, this.#tripContainer, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderFailedLoad() {
+    this.#emptyListComponent = new TripEmptyListView({ message: FAILED_LOAD_MESSAGE });
+    render(this.#emptyListComponent, this.#tripContainer);
   }
 
   #renderSort() {
