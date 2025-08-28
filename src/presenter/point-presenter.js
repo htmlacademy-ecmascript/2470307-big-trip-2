@@ -48,6 +48,10 @@ export default class PointPresenter {
     remove(prevPointComponent);
   }
 
+  get isBusy() {
+    return this.#editComponent?._state.isDisabled ?? false;
+  }
+
   destroy() {
     remove(this.#pointComponent);
     remove(this.#editComponent);
@@ -55,21 +59,23 @@ export default class PointPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
-      this.#editComponent.reset(this.#point);
-      this.#replaceFormToPoint();
+      this.#closeEditForm();
     }
   }
 
   #escKeyDownHandler = (evt) => {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
-      this.#editComponent.reset(this.#point);
-      this.#replaceFormToPoint();
+      this.#closeEditForm();
     }
   };
 
   #replacePointToForm() {
-    this.#handleModeChange();
+    const canChangeMode = this.#handleModeChange();
+    if (!canChangeMode) {
+      return;
+    }
+
     if (this.#editComponent === null) {
       this.#editComponent = new EditPointView({
         point: this.#point,
@@ -77,7 +83,7 @@ export default class PointPresenter {
         allDestinations: this.#allDestinations,
         onFormSubmit: this.#handleFormSubmit,
         onRollupClick: this.#handleRollupCloseClick,
-        onResetClick: this.#handleDeleteClick,
+        onDeleteClick: this.#handleDeleteClick,
       });
     }
 
@@ -107,13 +113,14 @@ export default class PointPresenter {
         UpdateType.MINOR,
         point
       );
-      this.#replaceFormToPoint();
     } catch (err) {
       this.#editComponent.shake(() => {
-        this.#editComponent.updateElement({
-          isDisabled: false,
-          isSaving: false,
-        });
+        if (this.#editComponent.element.parentElement) {
+          this.#editComponent.updateElement({
+            isDisabled: false,
+            isSaving: false,
+          });
+        }
       });
     }
   };
@@ -124,24 +131,35 @@ export default class PointPresenter {
       await this.#handleViewAction(UserAction.DELETE_POINT, UpdateType.MAJOR, point);
     } catch (err) {
       this.#editComponent.shake(() => {
-        this.#editComponent.updateElement({
-          isDisabled: false,
-          isDeleting: false,
-        });
+        if (this.#editComponent.element.parentElement) {
+          this.#editComponent.updateElement({
+            isDisabled: false,
+            isDeleting: false,
+          });
+        }
       });
     }
   };
 
   #handleRollupCloseClick = () => {
+    this.#closeEditForm();
+  };
+
+  #closeEditForm = () => {
     this.#editComponent.reset(this.#point);
     this.#replaceFormToPoint();
   };
 
-  #handleFavoriteClick = () => {
-    this.#handleViewAction(
-      UserAction.UPDATE_POINT,
-      UpdateType.PATCH,
-      { ...this.#point, isFavorite: !this.#point.isFavorite }
-    );
+  #handleFavoriteClick = async () => {
+    try {
+      await this.#handleViewAction(
+        UserAction.UPDATE_POINT,
+        UpdateType.PATCH,
+        { ...this.#point, isFavorite: !this.#point.isFavorite },
+        { blockUi: false }
+      );
+    } catch (err) {
+      this.#pointComponent.shake();
+    }
   };
 }
