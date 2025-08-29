@@ -21,6 +21,10 @@ export default class NewPointPresenter {
     this.#handleDestroy = onDestroy;
   }
 
+  get isBusy() {
+    return this.#editComponent?.isBusy ?? false;
+  }
+
   init() {
     if (this.#editComponent !== null) {
       return;
@@ -35,10 +39,6 @@ export default class NewPointPresenter {
 
     render(this.#editComponent, this.#pointListContainer, RenderPosition.AFTERBEGIN);
     document.addEventListener('keydown', this.#escKeyDownHandler);
-  }
-
-  get isBusy() {
-    return this.#editComponent?.isBusy ?? false;
   }
 
   destroy() {

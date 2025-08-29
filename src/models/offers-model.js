@@ -6,17 +6,13 @@ export default class OffersModel {
     this.#pointsApiService = pointsApiService;
   }
 
-  async init() {
-    this.#offers = await this.#pointsApiService.offers;
-    return this.#offers;
-  }
-
   get offers() {
     return this.#offers;
   }
 
-  #getAllOffers() {
-    return this.#offers.flatMap((item) => item.offers);
+  async init() {
+    this.#offers = await this.#pointsApiService.offers;
+    return this.#offers;
   }
 
   getOffersByType(type = '') {
@@ -29,5 +25,9 @@ export default class OffersModel {
 
   getPointTypes() {
     return this.#offers.map((item) => item.type);
+  }
+
+  #getAllOffers() {
+    return this.#offers.flatMap((item) => item.offers);
   }
 }

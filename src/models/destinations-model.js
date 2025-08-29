@@ -6,12 +6,12 @@ export default class DestinationsModel {
     this.#pointsApiService = pointsApiService;
   }
 
-  async init() {
-    this.#destinations = await this.#pointsApiService.destinations;
+  get destinations() {
     return this.#destinations;
   }
 
-  get destinations() {
+  async init() {
+    this.#destinations = await this.#pointsApiService.destinations;
     return this.#destinations;
   }
 

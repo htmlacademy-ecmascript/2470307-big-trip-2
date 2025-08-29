@@ -14,6 +14,18 @@ export default class PointsModel extends Observable {
     this.#pointsApiService = pointsApiService;
   }
 
+  get offers() {
+    return this.#offersModel.offers;
+  }
+
+  get destinations() {
+    return this.#destinationsModel.destinations;
+  }
+
+  get points() {
+    return this.#points;
+  }
+
   async init(isError = false) {
     if (isError) {
       this.#points = [];
@@ -31,18 +43,6 @@ export default class PointsModel extends Observable {
       this._notify(UpdateType.INIT, { isError: true });
       return false;
     }
-  }
-
-  get offers() {
-    return this.#offersModel.offers;
-  }
-
-  get destinations() {
-    return this.#destinationsModel.destinations;
-  }
-
-  get points() {
-    return this.#points;
   }
 
   async updatePoint(updateType, update) {
