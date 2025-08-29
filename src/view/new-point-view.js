@@ -42,22 +42,6 @@ export default class NewPointView extends AbstractStatefulView {
     return createNewPointTemplate(this._state, this.#allOffers, this.#allDestinations);
   }
 
-  get isBusy() {
-    return this._state.isDisabled;
-  }
-
-  removeElement() {
-    super.removeElement();
-    if (this.#datepickerFrom) {
-      this.#datepickerFrom.destroy();
-      this.#datepickerFrom = null;
-    }
-    if (this.#datepickerTo) {
-      this.#datepickerTo.destroy();
-      this.#datepickerTo = null;
-    }
-  }
-
   _restoreHandlers() {
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#cancelClickHandler);
@@ -72,11 +56,73 @@ export default class NewPointView extends AbstractStatefulView {
     this.#setDatepickers();
   }
 
+  removeElement() {
+    super.removeElement();
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
+  }
+
+  get isBusy() {
+    return this._state.isDisabled;
+  }
+
   #toggleSaveButton() {
     if (this._state.isDisabled) {
       return;
     }
     this.element.querySelector('.event__save-btn').disabled = this.#isFormInvalid();
+  }
+
+  #setDatepickers() {
+    this.#initDatepickerFrom();
+    this.#initDatepickerTo();
+  }
+
+  #initDatepickerFrom() {
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+    }
+    const dateFromInput = this.element.querySelector('#event-start-time-1');
+    const dateFromConfig = {
+      enableTime: true, 'time_24hr': true, dateFormat: DateFormat.FLATPICKR,
+      defaultDate: this._state.dateFrom, onChange: this.#dateFromChangeHandler, maxDate: this._state.dateTo,
+    };
+    if (this._state.dateTo && !this._state.dateFrom) {
+      const suggestedDate = dayjs(this._state.dateTo).subtract(SUGGESTED_TIME_OFFSET_IN_HOURS, TimeUnit.HOUR);
+      dateFromConfig.defaultHour = suggestedDate.hour();
+      dateFromConfig.defaultMinute = suggestedDate.minute();
+    }
+    this.#datepickerFrom = flatpickr(dateFromInput, dateFromConfig);
+  }
+
+  #initDatepickerTo() {
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+    }
+    const dateToInput = this.element.querySelector('#event-end-time-1');
+    const dateToConfig = {
+      enableTime: true, 'time_24hr': true, dateFormat: DateFormat.FLATPICKR,
+      defaultDate: this._state.dateTo, onChange: this.#dateToChangeHandler, minDate: this._state.dateFrom,
+    };
+    if (this._state.dateFrom && !this._state.dateTo) {
+      const suggestedDate = dayjs(this._state.dateFrom).add(SUGGESTED_TIME_OFFSET_IN_HOURS, TimeUnit.HOUR);
+      dateToConfig.defaultHour = suggestedDate.hour();
+      dateToConfig.defaultMinute = suggestedDate.minute();
+    }
+    this.#datepickerTo = flatpickr(dateToInput, dateToConfig);
+  }
+
+  #isFormInvalid() {
+    const isDestinationInvalid = !this.#allDestinations.some((dest) => dest.name === this._state.destination.name);
+    const isPriceInvalid = !this._state.basePrice || this._state.basePrice <= MIN_PRICE_VALUE;
+    const areDatesInvalid = !this._state.dateFrom || !this._state.dateTo;
+    return isDestinationInvalid || isPriceInvalid || areDatesInvalid;
   }
 
   #formSubmitHandler = (evt) => {
@@ -125,45 +171,6 @@ export default class NewPointView extends AbstractStatefulView {
     this._setState({ offers: selectedOffers });
   };
 
-  #setDatepickers() {
-    this.#initDatepickerFrom();
-    this.#initDatepickerTo();
-  }
-
-  #initDatepickerFrom() {
-    if (this.#datepickerFrom) {
-      this.#datepickerFrom.destroy();
-    }
-    const dateFromInput = this.element.querySelector('#event-start-time-1');
-    const dateFromConfig = {
-      enableTime: true, 'time_24hr': true, dateFormat: DateFormat.FLATPICKR,
-      defaultDate: this._state.dateFrom, onChange: this.#dateFromChangeHandler, maxDate: this._state.dateTo,
-    };
-    if (this._state.dateTo && !this._state.dateFrom) {
-      const suggestedDate = dayjs(this._state.dateTo).subtract(SUGGESTED_TIME_OFFSET_IN_HOURS, TimeUnit.HOUR);
-      dateFromConfig.defaultHour = suggestedDate.hour();
-      dateFromConfig.defaultMinute = suggestedDate.minute();
-    }
-    this.#datepickerFrom = flatpickr(dateFromInput, dateFromConfig);
-  }
-
-  #initDatepickerTo() {
-    if (this.#datepickerTo) {
-      this.#datepickerTo.destroy();
-    }
-    const dateToInput = this.element.querySelector('#event-end-time-1');
-    const dateToConfig = {
-      enableTime: true, 'time_24hr': true, dateFormat: DateFormat.FLATPICKR,
-      defaultDate: this._state.dateTo, onChange: this.#dateToChangeHandler, minDate: this._state.dateFrom,
-    };
-    if (this._state.dateFrom && !this._state.dateTo) {
-      const suggestedDate = dayjs(this._state.dateFrom).add(SUGGESTED_TIME_OFFSET_IN_HOURS, TimeUnit.HOUR);
-      dateToConfig.defaultHour = suggestedDate.hour();
-      dateToConfig.defaultMinute = suggestedDate.minute();
-    }
-    this.#datepickerTo = flatpickr(dateToInput, dateToConfig);
-  }
-
   #dateFromChangeHandler = (dates) => {
     this._setState({ dateFrom: dates[0] || null });
     this.#initDatepickerTo();
@@ -175,13 +182,6 @@ export default class NewPointView extends AbstractStatefulView {
     this.#initDatepickerFrom();
     this.#toggleSaveButton();
   };
-
-  #isFormInvalid() {
-    const isDestinationInvalid = !this.#allDestinations.some((dest) => dest.name === this._state.destination.name);
-    const isPriceInvalid = !this._state.basePrice || this._state.basePrice <= MIN_PRICE_VALUE;
-    const areDatesInvalid = !this._state.dateFrom || !this._state.dateTo;
-    return isDestinationInvalid || isPriceInvalid || areDatesInvalid;
-  }
 
   static parsePointToState(point) {
     return { ...point, isDisabled: false, isSaving: false, isDeleting: false };

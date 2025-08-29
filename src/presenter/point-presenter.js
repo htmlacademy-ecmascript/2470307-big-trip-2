@@ -25,6 +25,10 @@ export default class PointPresenter {
     this.#handleModeChange = onModeChange;
   }
 
+  get isBusy() {
+    return this.#editComponent?.isBusy ?? false;
+  }
+
   init(point) {
     this.#point = point;
 
@@ -48,10 +52,6 @@ export default class PointPresenter {
     remove(prevPointComponent);
   }
 
-  get isBusy() {
-    return this.#editComponent?.isBusy ?? false;
-  }
-
   destroy() {
     remove(this.#pointComponent);
     remove(this.#editComponent);
@@ -62,13 +62,6 @@ export default class PointPresenter {
       this.#closeEditForm();
     }
   }
-
-  #escKeyDownHandler = (evt) => {
-    if (isEscapeKey(evt)) {
-      evt.preventDefault();
-      this.#closeEditForm();
-    }
-  };
 
   #replacePointToForm() {
     const canChangeMode = this.#handleModeChange();
@@ -97,6 +90,18 @@ export default class PointPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
   }
+
+  #closeEditForm = () => {
+    this.#editComponent.reset(this.#point);
+    this.#replaceFormToPoint();
+  };
+
+  #escKeyDownHandler = (evt) => {
+    if (isEscapeKey(evt)) {
+      evt.preventDefault();
+      this.#closeEditForm();
+    }
+  };
 
   #handleRollupClick = () => {
     this.#replacePointToForm();
@@ -143,11 +148,6 @@ export default class PointPresenter {
 
   #handleRollupCloseClick = () => {
     this.#closeEditForm();
-  };
-
-  #closeEditForm = () => {
-    this.#editComponent.reset(this.#point);
-    this.#replaceFormToPoint();
   };
 
   #handleFavoriteClick = async () => {
