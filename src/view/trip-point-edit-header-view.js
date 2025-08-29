@@ -1,12 +1,6 @@
 import { formatDateTime } from '../utils/datetime.js';
 import he from 'he';
 
-/**
- * @description Создает шаблон для списка типов событий
- * @param {string} currentType - Текущий тип точки
- * @param {Array} allOffers - Все доступные опции
- * @returns {string}
- */
 function createEventTypeItemsTemplate(currentType, allOffers) {
   return allOffers.map(({ type }) => {
     const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
@@ -20,23 +14,10 @@ function createEventTypeItemsTemplate(currentType, allOffers) {
   }).join('');
 }
 
-/**
- * @description Создает шаблон для списка пунктов назначения в datalist
- * @param {Array} allDestinations - Все доступные пункты назначения
- * @returns {string}
- */
 function createDestinationOptionsTemplate(allDestinations) {
   return allDestinations.map((destination) => `<option value="${destination.name}"></option>`).join('');
 }
 
-/**
- * @description Создает шаблон для шапки формы редактирования
- * @param {Object} point - Точка маршрута
- * @param {Array} allDestinations - Все доступные пункты назначения
- * @param {Array} allOffers - Все доступные опции
- * @param {boolean} isCreating - Флаг, указывающий, создается ли новая точка
- * @returns {string}
- */
 function createTripPointEditHeaderTemplate(point, allDestinations, allOffers, isCreating) {
   const { type, destination, dateFrom, dateTo, basePrice, isDisabled, isSaving, isDeleting } = point;
   const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);

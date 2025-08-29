@@ -49,7 +49,7 @@ export default class PointPresenter {
   }
 
   get isBusy() {
-    return this.#editComponent?._state.isDisabled ?? false;
+    return this.#editComponent?.isBusy ?? false;
   }
 
   destroy() {

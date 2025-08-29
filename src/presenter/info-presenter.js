@@ -2,31 +2,11 @@ import InfoView from '../view/info-view.js';
 import { render, RenderPosition, remove, replace } from '../framework/render.js';
 import { sortPointsByDate, getTripTitle, getTripDates, getTripCost } from '../utils/point.js';
 
-/**
- * @description Презентер для основной информации о путешествии (шапка)
- */
 export default class InfoPresenter {
-  /**
-   * @description DOM-элемент, в который будет рендериться информация
-   * @type {HTMLElement}
-   */
   #infoContainer = null;
-  /**
-   * @description Модель точек маршрута
-   * @type {PointsModel}
-   */
   #pointsModel = null;
-  /**
-   * @description Компонент с информацией о путешествии
-   * @type {InfoView|null}
-   */
   #infoComponent = null;
 
-  /**
-   * @param {Object} args - Аргументы конструктора
-   * @param {HTMLElement} args.infoContainer - DOM-контейнер
-   * @param {PointsModel} args.pointsModel - Модель точек
-   */
   constructor({ infoContainer, pointsModel }) {
     this.#infoContainer = infoContainer;
     this.#pointsModel = pointsModel;
@@ -34,9 +14,6 @@ export default class InfoPresenter {
     this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
-  /**
-   * @description Инициализирует презентер: рендерит компонент с информацией
-   */
   init() {
     const prevInfoComponent = this.#infoComponent;
     const points = this.#pointsModel.points;

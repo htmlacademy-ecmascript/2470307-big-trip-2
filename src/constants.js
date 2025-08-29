@@ -11,7 +11,6 @@ const DURATION_FORMAT_PAD_CHAR = '0';
 const INITIAL_COST_VALUE = 0;
 const REGEX_ONLY_DIGITS = /\D/g;
 
-/** Форматы дат */
 const DateFormat = {
   MONTH_DAY: 'MMM D',
   HEADER_DATE: 'D MMM',
@@ -23,7 +22,6 @@ const DateFormat = {
   DURATION_MINUTES: 'M',
 };
 
-/** Типы фильтров */
 const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
@@ -31,7 +29,6 @@ const FilterType = {
   PAST:'past'
 };
 
-/** Сообщения для пустых списков */
 const EmptyListMessages = {
   [FilterType.EVERYTHING]: 'Click New Event to create your first point',
   [FilterType.PAST]: 'There are no past events now',
@@ -39,10 +36,8 @@ const EmptyListMessages = {
   [FilterType.FUTURE]: 'There are no future events now',
 };
 
-/** Сообщение при ошибке загрузки данных */
 const FAILED_LOAD_MESSAGE = 'Failed to load latest route information';
 
-/** Типы сортировки */
 const SortType = {
   DAY: 'day',
   EVENT: 'event',
@@ -51,7 +46,6 @@ const SortType = {
   OFFERS: 'offer',
 };
 
-/** Режимы отображения точки */
 const Mode = {
   DEFAULT: 'DEFAULT',
   EDITING: 'EDITING',
@@ -64,10 +58,10 @@ const UserAction = {
 };
 
 const UpdateType = {
-  PATCH: 'PATCH', // Обновить часть точки
-  MINOR: 'MINOR', // Обновить список
-  MAJOR: 'MAJOR', // Обновить всю доску
-  INIT: 'INIT', // Начальная инициализация
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 const BLANK_POINT = {

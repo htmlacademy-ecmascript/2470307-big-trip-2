@@ -1,32 +1,12 @@
 import Observable from '../framework/observable.js';
 import { UpdateType } from '../constants.js';
 
-/**
- * @description Модель для работы с точками маршрута. Хранит и обрабатывает данные.
- */
 export default class PointsModel extends Observable {
-  /**
-   * @description "Сырые" данные о точках
-   * @type {Array}
-   */
   #points = [];
   #pointsApiService = null;
-  /**
-   * @description Экземпляр модели для работы с опциями
-   * @type {OffersModel}
-   */
   #offersModel = null;
-  /**
-   * @description Экземпляр модели для работы с пунктами назначения
-   * @type {DestinationsModel}
-   */
   #destinationsModel = null;
 
-  /**
-   * @param {Object} args - Аргументы конструктора
-   * @param {OffersModel} args.offersModel - Модель опций
-   * @param {DestinationsModel} args.destinationsModel - Модель пунктов назначения
-   */
   constructor({ offersModel, destinationsModel, pointsApiService }) {
     super();
     this.#offersModel = offersModel;
@@ -53,27 +33,14 @@ export default class PointsModel extends Observable {
     }
   }
 
-  /**
-   * @description Геттер для получения всех доступных опций
-   * @returns {Array}
-   */
   get offers() {
     return this.#offersModel.offers;
   }
 
-  /**
-   * @description Геттер для получения всех доступных пунктов назначения
-   * @returns {Array}
-   */
   get destinations() {
     return this.#destinationsModel.destinations;
   }
 
-  /**
-   * @description Геттер для получения точек,
-   * адаптированных для клиента.
-   * @returns {Array}
-   */
   get points() {
     return this.#points;
   }

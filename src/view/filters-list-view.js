@@ -1,10 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-/**
- * @description Создает шаблон для одного элемента фильтра
- * @param {Object} filter - Данные фильтра
- * @returns {string}
- */
 function createFilterItemTemplate({ id, label, isDisabled }, currentFilterType) {
   return (
     `<div class="trip-filters__filter">
@@ -22,10 +17,6 @@ function createFilterItemTemplate({ id, label, isDisabled }, currentFilterType) 
   );
 }
 
-/**
- * @description Создает шаблон для контейнера фильтров
- * @returns {string}
- */
 function createFiltersTemplate(filters, currentFilterType) {
   return (
     `<form class="trip-filters" action="#" method="get">
@@ -34,9 +25,6 @@ function createFiltersTemplate(filters, currentFilterType) {
   );
 }
 
-/**
- * @description Класс представления для контейнера фильтров
- */
 export default class FiltersView extends AbstractView {
   #filters = null;
   #currentFilter = null;
@@ -51,10 +39,6 @@ export default class FiltersView extends AbstractView {
     this.element.addEventListener('change', this.#filterTypeChangeHandler);
   }
 
-  /**
-   * @description Геттер для получения шаблона
-   * @returns {string}
-   */
   get template() {
     return createFiltersTemplate(this.#filters, this.#currentFilter);
   }
