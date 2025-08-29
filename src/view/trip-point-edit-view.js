@@ -6,13 +6,6 @@ import dayjs from 'dayjs';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
-/**
- * @description Создает шаблон для формы редактирования точки
- * @param {Object} point - Точка маршрута
- * @param {Array} allOffers - Все доступные опции
- * @param {Array} allDestinations - Все доступные пункты назначения
- * @returns {string}
- */
 function createEditTripPointsTemplate(point, allOffers, allDestinations) {
   const allOffersForType = allOffers.find((offer) => offer.type === point.type)?.offers;
 
@@ -26,31 +19,15 @@ function createEditTripPointsTemplate(point, allOffers, allDestinations) {
   `);
 }
 
-/**
- * @description Класс представления для формы редактирования точки
- */
 export default class EditPointView extends AbstractStatefulView {
   #allOffers = [];
   #allDestinations = [];
   #handleRollupClick = null;
-  /**
-   * @description Колбэк для обработки отправки формы
-   * @type {Function}
-   */
   #handleFormSubmit = null;
   #handleDeleteClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  /**
-   * @param {Object} args - Аргументы конструктора
-   * @param {Object} args.point - Точка маршрута
-   * @param {Array} args.allOffers - Все доступные опции
-   * @param {Array} args.allDestinations - Все доступные пункты назначения
-   * @param {Function} args.onFormSubmit - Колбэк для обработки отправки формы
-   * @param {Function} args.onDeleteClick - Колбэк для обработки клика по кнопке "Delete"
-   * @param {Function} args.onRollupClick - Колбэк для обработки клика по кнопке "стрелка вверх"
-   */
   constructor({ point, allOffers, allDestinations, onFormSubmit, onRollupClick, onDeleteClick }) {
     super();
     this._setState(EditPointView.parsePointToState(point));
@@ -64,12 +41,12 @@ export default class EditPointView extends AbstractStatefulView {
     this._restoreHandlers();
   }
 
-  /**
-   * @description Геттер для получения шаблона
-   * @returns {string}
-   */
   get template() {
     return createEditTripPointsTemplate(this._state, this.#allOffers, this.#allDestinations);
+  }
+
+  get isBusy() {
+    return this._state.isDisabled;
   }
 
   reset(point) {
@@ -111,8 +88,6 @@ export default class EditPointView extends AbstractStatefulView {
   }
 
   #toggleSaveButton() {
-    // Если форма в процессе запроса к серверу, кнопки уже заблокированы через шаблон.
-    // Эта проверка нужна, чтобы не разблокировать их раньше времени.
     if (this._state.isDisabled) {
       return;
     }
@@ -151,8 +126,6 @@ export default class EditPointView extends AbstractStatefulView {
         destination: selectedDestination,
       });
     } else {
-      // Если пункта назначения не найдено, сохраняем введенное пользователем значение
-      // и сбрасываем описание и фото. Валидация обработает невалидное значение.
       this.updateElement({
         destination: {
           name: evt.target.value,
@@ -165,7 +138,6 @@ export default class EditPointView extends AbstractStatefulView {
 
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
-    // Разрешаем ввод только цифр
     evt.target.value = evt.target.value.replace(REGEX_ONLY_DIGITS, '');
     const newPrice = parseInt(evt.target.value, 10);
     this._setState({
@@ -204,7 +176,6 @@ export default class EditPointView extends AbstractStatefulView {
       maxDate: this._state.dateTo,
     };
 
-    // Если выбрана дата "до" и не выбрана дата "от"
     if (this._state.dateTo && !this._state.dateFrom) {
       const suggestedDate = dayjs(this._state.dateTo).subtract(SUGGESTED_TIME_OFFSET_IN_HOURS, TimeUnit.HOUR);
       dateFromConfig.defaultHour = suggestedDate.hour();
@@ -229,7 +200,6 @@ export default class EditPointView extends AbstractStatefulView {
       minDate: this._state.dateFrom,
     };
 
-    // Если выбрана дата "от" и не выбрана дата "до"
     if (this._state.dateFrom && !this._state.dateTo) {
       const suggestedDate = dayjs(this._state.dateFrom).add(SUGGESTED_TIME_OFFSET_IN_HOURS, TimeUnit.HOUR);
       dateToConfig.defaultHour = suggestedDate.hour();
@@ -241,24 +211,21 @@ export default class EditPointView extends AbstractStatefulView {
 
   #dateFromChangeHandler = (dates) => {
     this._setState({ dateFrom: dates[0] || null });
-    this.#initDatepickerTo(); // Переинициализируем календарь "до", чтобы обновить minDate и время по умолчанию
+    this.#initDatepickerTo();
     this.#toggleSaveButton();
   };
 
   #dateToChangeHandler = (dates) => {
     this._setState({ dateTo: dates[0] || null });
-    this.#initDatepickerFrom(); // Переинициализируем календарь "от", чтобы обновить maxDate и время по умолчанию
+    this.#initDatepickerFrom();
     this.#toggleSaveButton();
   };
 
   #isFormInvalid() {
-    // Проверяем, что пункт назначения выбран из списка (а не просто введен текст)
     const isDestinationInvalid = !this.#allDestinations.some((dest) => dest.name === this._state.destination.name);
 
-    // Проверяем, что цена - это число больше 0
     const isPriceInvalid = !this._state.basePrice || this._state.basePrice <= MIN_PRICE_VALUE;
 
-    // Проверяем, что обе даты выбраны
     const areDatesInvalid = !this._state.dateFrom || !this._state.dateTo;
 
     return isDestinationInvalid || isPriceInvalid || areDatesInvalid;

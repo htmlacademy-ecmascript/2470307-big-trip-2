@@ -12,89 +12,25 @@ import SortItemView from '../view/sort-item-view.js';
 import LoadingView from '../view/loading-view.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
-/**
- * @description Главный презентер, управляет отрисовкой списка точек
- */
 export default class TripPresenter {
-  /**
-   * @description DOM-элемент, в который будет рендериться список
-   * @type {HTMLElement}
-   */
   #tripContainer = null;
-  /**
-   * @description Колбэк, который будет вызван при уничтожении формы создания точки
-   * @type {Function|null}
-   */
   #onNewPointDestroy = null;
-
-  /**
-   * @description Модель точек маршрута
-   * @type {PointsModel}
-   */
   #pointsModel = null;
-  /**
-   * @description Модель фильтров
-   * @type {FilterModel}
-   */
   #filterModel = null;
-
-  /**
-   * @description Компонент списка (ul)
-   * @type {TripPontsListView}
-   */
   #tripListView = new TripPontsListView();
-
-  /**
-   * @description Текущий тип сортировки
-   * @type {string}
-   */
   #currentSortType = SortType.DAY;
-
-  /**
-   * @description Компонент сортировки
-   * @type {SortView|null}
-   */
   #sortComponent = null;
-  /**
-   * @description Компонент-заглушка
-   * @type {TripEmptyListView|null}
-   */
   #emptyListComponent = null;
-  /**
-   * @description Компонент загрузки
-   * @type {LoadingView}
-   */
   #loadingComponent = new LoadingView();
-
-  /**
-   * @description Коллекция дочерних презентеров
-   * @type {Map<string, PointPresenter>}
-   */
   #pointPresenters = new Map();
-  /**
-   * @description Презентер для создания новой точки
-   * @type {NewPointPresenter|null}
-   */
   #newPointPresenter = null;
-
-  /**
-   * @description Флаг, указывающий на состояние загрузки
-   * @type {boolean}
-   */
   #isLoading = true;
-  /**
-   * @description Экземпляр блокировщика интерфейса
-   * @type {UiBlocker}
-   */
+
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
     upperLimit: TimeLimit.UPPER_LIMIT
   });
 
-  /**
-   * @description Геттер для получения отфильтрованных точек
-   * @returns {Array}
-   */
   get points() {
     const filterType = this.#filterModel.filter;
     const points = this.#pointsModel.points;
@@ -110,13 +46,6 @@ export default class TripPresenter {
     return sortPointsByDate(filteredPoints);
   }
 
-  /**
-   * @param {Object} args - Аргументы конструктора
-   * @param {HTMLElement} args.tripContainer - DOM-контейнер
-   * @param {PointsModel} args.pointsModel - Модель точек
-   * @param {FilterModel} args.filterModel - Модель фильтров
-   * @param {Function} args.onNewPointDestroy - Колбэк для обработки закрытия формы новой точки
-   */
   constructor({ tripContainer, pointsModel, filterModel, onNewPointDestroy }) {
     this.#tripContainer = tripContainer;
     this.#pointsModel = pointsModel;
@@ -127,10 +56,6 @@ export default class TripPresenter {
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
-
-  /**
-   * @description Инициализация презентера
-   */
   init() {
     this.#renderBoard();
   }
@@ -284,10 +209,6 @@ export default class TripPresenter {
     render(this.#sortComponent, this.#tripContainer);
   }
 
-  /**
-   * @description Рендерит одну точку маршрута
-   * @param {Object} point - Точка маршрута
-   */
   #renderPoint(point) {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#tripListView.element,
@@ -305,9 +226,6 @@ export default class TripPresenter {
     render(this.#emptyListComponent, this.#tripContainer);
   }
 
-  /**
-   * @description Рендерит весь список точек
-   */
   #renderTrip() {
     const points = this.points;
     if (points.length === 0) {
@@ -323,9 +241,6 @@ export default class TripPresenter {
     }
   }
 
-  /**
-   * @description Отрисовывает доску со всеми компонентами
-   */
   #renderBoard() {
     if (this.#isLoading) {
       this.#renderLoading();
@@ -335,9 +250,6 @@ export default class TripPresenter {
     this.#renderTrip();
   }
 
-  /**
-   * @description Очищает доску (список точек и сортировку)
-   */
   #clearBoard({ resetSortType = false } = {}) {
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;

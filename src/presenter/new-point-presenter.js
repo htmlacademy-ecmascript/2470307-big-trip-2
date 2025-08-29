@@ -38,7 +38,7 @@ export default class NewPointPresenter {
   }
 
   get isBusy() {
-    return this.#editComponent?._state.isDisabled ?? false;
+    return this.#editComponent?.isBusy ?? false;
   }
 
   destroy() {

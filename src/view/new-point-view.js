@@ -42,6 +42,10 @@ export default class NewPointView extends AbstractStatefulView {
     return createNewPointTemplate(this._state, this.#allOffers, this.#allDestinations);
   }
 
+  get isBusy() {
+    return this._state.isDisabled;
+  }
+
   removeElement() {
     super.removeElement();
     if (this.#datepickerFrom) {

@@ -8,24 +8,18 @@ import FilterModel from './models/filter-model.js';
 import PointsApiService from './points-api-service.js';
 import { AUTHORIZATION, END_POINT } from './constants.js';
 
-/** @type {HTMLElement} Контейнер для фильтров */
 const tripControlsElement = document.querySelector('.trip-controls__filters');
-/** @type {HTMLElement} Контейнер для событий */
 const tripEventsContainer = document.querySelector('.trip-events');
-/** @type {HTMLElement} Контейнер для основной информации о путешествии */
 const tripMain = document.querySelector('.trip-main');
-/** @type {HTMLButtonElement} Кнопка создания новой точки */
 const newPointButton = tripMain.querySelector('.trip-main__event-add-btn');
 
 const pointsApiService = new PointsApiService(END_POINT, AUTHORIZATION);
 
-// Создание моделей
 const offersModel = new OffersModel({ pointsApiService });
 const destinationsModel = new DestinationsModel({ pointsApiService });
 const filterModel = new FilterModel();
 const pointsModel = new PointsModel({ offersModel, destinationsModel, pointsApiService });
 
-// Создание и инициализация презентера для фильтров
 const filterPresenter = new FilterPresenter({
   filtersContainer: tripControlsElement,
   pointsModel,
@@ -41,7 +35,6 @@ const handleNewPointFormClose = () => {
   newPointButton.disabled = false;
 };
 
-// Создание и инициализация основного презентера путешествия
 const tripPresenter = new TripPresenter({
   tripContainer: tripEventsContainer,
   pointsModel,
@@ -56,7 +49,7 @@ const handleNewPointButtonClick = () => {
 
 newPointButton.disabled = true;
 
-tripPresenter.init(); // Сначала запускаем главный презентер, он покажет "Loading..."
+tripPresenter.init();
 
 Promise.all([
   offersModel.init(),

@@ -3,12 +3,6 @@ import { formatDate } from '../utils/datetime.js';
 import { createTripPointEventTemplate } from './trip-point-event-view.js';
 import { createTripSelectedOfferPointTemplate } from './trip-selected-offer-point-view.js';
 
-
-/**
- * @description Создает шаблон для элемента списка (li)
- * @param {Object} point - Точка маршрута
- * @returns {string}
- */
 function createTripPointItemTemplate(point) {
   const { dateFrom, isFavorite, offers } = point;
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
@@ -39,32 +33,11 @@ function createTripPointItemTemplate(point) {
   `;
 }
 
-/**
- * @description Класс представления для точки маршрута в списке
- */
 export default class PointView extends AbstractView {
-  /**
-   * @description Точка маршрута
-   * @type {Object|null}
-   */
   #point = null;
-  /**
-   * @description Колбэк для обработки клика по кнопке "стрелка вниз"
-   * @type {Function}
-   */
   #handleRollupClick = null;
-  /**
-   * @description Колбэк для обработки клика по кнопке "в избранное"
-   * @type {Function}
-   */
   #handleFavoriteClick = null;
 
-  /**
-   * @param {Object} args - Аргументы конструктора
-   * @param {Object} args.point - Точка маршрута
-   * @param {Function} args.onRollupClick - Колбэк для обработки клика по кнопке "стрелка вниз"
-   * @param {Function} args.onFavoriteClick - Колбэк для обработки клика по кнопке "в избранное"
-   */
   constructor({ point, onRollupClick, onFavoriteClick }) {
     super();
     this.#point = point;
@@ -75,10 +48,6 @@ export default class PointView extends AbstractView {
     this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteClickHandler);
   }
 
-  /**
-   * @description Геттер для получения шаблона
-   * @returns {string}
-   */
   get template() {
     return createTripPointItemTemplate(this.#point);
   }

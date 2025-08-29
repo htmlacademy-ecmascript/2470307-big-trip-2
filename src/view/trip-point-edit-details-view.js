@@ -1,9 +1,3 @@
-/**
- * @description Создает шаблон для блока с доступными опциями
- * @param {Object} point - Точка маршрута
- * @param {Array} allOffersForType - Все опции для данного типа точки
- * @returns {string}
- */
 function createAvailableOffersTemplate(point, allOffersForType) {
   if (!allOffersForType || allOffersForType.length === 0) {
     return '';
@@ -12,7 +6,6 @@ function createAvailableOffersTemplate(point, allOffersForType) {
   const pointOfferIds = point.offers.map((offer) => offer.id);
 
   const offersList = allOffersForType.map(({ id, title, price }) => {
-    // Проверяем, выбрана ли эта опция у текущей точки
     const isChecked = pointOfferIds.includes(id) ? 'checked' : '';
     return `
       <div class="event__offer-selector">
@@ -36,11 +29,6 @@ function createAvailableOffersTemplate(point, allOffersForType) {
   `;
 }
 
-/**
- * @description Создает шаблон для блока с фотографиями пункта назначения
- * @param {Array} pictures - Массив с фотографиями
- * @returns {string}
- */
 function createDestinationPicturesTemplate(pictures) {
   if (!pictures || pictures.length === 0) {
     return '';
@@ -54,11 +42,6 @@ function createDestinationPicturesTemplate(pictures) {
   `;
 }
 
-/**
- * @description Создает шаблон для блока с описанием пункта назначения
- * @param {Object} destination - Пункт назначения
- * @returns {string}
- */
 function createDestinationDetailsTemplate(destination) {
   if (!destination || (!destination.description && (!destination.pictures || destination.pictures.length === 0))) {
     return '';
@@ -73,12 +56,6 @@ function createDestinationDetailsTemplate(destination) {
   `;
 }
 
-/**
- * @description Создает шаблон для секции "details" в форме редактирования
- * @param {Object} point - Точка маршрута
- * @param {Array} allOffersForType - Все опции для данного типа точки
- * @returns {string}
- */
 function createTripPointEditDetailsTemplate(point, allOffersForType) {
   return `
     <section class="event__details">

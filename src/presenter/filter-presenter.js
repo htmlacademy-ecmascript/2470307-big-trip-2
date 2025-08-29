@@ -4,34 +4,12 @@ import { UpdateType } from '../constants.js';
 import { filterUtils } from '../utils/filter.js';
 import { FILTERS } from '../data/filter-data.js';
 
-/**
- * @description Презентер для фильтров
- */
 export default class FilterPresenter {
-  /**
-   * @description DOM-элемент, в который будут рендериться фильтры
-   * @type {HTMLElement}
-   */
   #filtersContainer = null;
-  /**
-   * @description Модель точек маршрута
-   * @type {PointsModel}
-   */
   #pointsModel = null;
-  /**
-   * @description Модель фильтров
-   * @type {FilterModel}
-   */
   #filterModel = null;
-
   #filtersComponent = null;
 
-  /**
-   * @param {Object} args - Аргументы конструктора
-   * @param {HTMLElement} args.filtersContainer - DOM-контейнер для фильтров
-   * @param {PointsModel} args.pointsModel - Модель точек
-   * @param {FilterModel} args.filterModel - Модель фильтров
-   */
   constructor({ filtersContainer, pointsModel, filterModel }) {
     this.#filtersContainer = filtersContainer;
     this.#pointsModel = pointsModel;
@@ -50,9 +28,6 @@ export default class FilterPresenter {
     }));
   }
 
-  /**
-   * @description Инициализирует презентер: рендерит компонент фильтров
-   */
   init() {
     const filters = this.filters;
     const prevFiltersComponent = this.#filtersComponent;
