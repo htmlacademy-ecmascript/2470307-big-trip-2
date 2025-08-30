@@ -1,4 +1,4 @@
-import TripPontsListView from '../view/trip-point-list-view.js';
+import TripPointListView from '../view/trip-point-list-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import TripEmptyListView from '../view/trip-empty-list-view.js';
 import PointPresenter from './point-presenter.js';
@@ -6,7 +6,7 @@ import NewPointPresenter from './new-point-presenter.js';
 import { sortPointsByDate, sortPointsByPrice, sortPointsByTime } from '../utils/point.js';
 import { filterUtils } from '../utils/filter.js';
 import { FilterType, EmptyListMessages, SortType, UpdateType, UserAction, TimeLimit, FAILED_LOAD_MESSAGE } from '../constants.js';
-import SortView from '../view/sort-list-view.js';
+import SortListView from '../view/sort-list-view.js';
 import { SORT_OPTIONS } from '../data/sort-data.js';
 import SortItemView from '../view/sort-item-view.js';
 import LoadingView from '../view/loading-view.js';
@@ -17,7 +17,7 @@ export default class TripPresenter {
   #onNewPointDestroy = null;
   #pointsModel = null;
   #filterModel = null;
-  #tripListView = new TripPontsListView();
+  #tripListView = new TripPointListView();
   #currentSortType = SortType.DAY;
   #sortComponent = null;
   #emptyListComponent = null;
@@ -81,7 +81,7 @@ export default class TripPresenter {
       allOffers: this.#pointsModel.offers,
       allDestinations: this.#pointsModel.destinations,
       onViewAction: this.#handleViewAction,
-      onDestroy: this.#handleNewPointFormClose,
+      onDestroy: this.#newPointFormCloseHandler,
     });
 
     this.#newPointPresenter.init();
@@ -111,7 +111,7 @@ export default class TripPresenter {
   }
 
   #renderSort() {
-    this.#sortComponent = new SortView({
+    this.#sortComponent = new SortListView({
       onSortTypeChange: this.#handleSortTypeChange,
     });
 
@@ -263,7 +263,7 @@ export default class TripPresenter {
     this.#renderBoard();
   };
 
-  #handleNewPointFormClose = () => {
+  #newPointFormCloseHandler = () => {
     this.#onNewPointDestroy();
     if (this.points.length === 0) {
       remove(this.#tripListView);

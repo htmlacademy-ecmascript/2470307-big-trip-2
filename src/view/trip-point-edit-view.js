@@ -19,7 +19,7 @@ function createEditTripPointsTemplate(point, allOffers, allDestinations) {
   `);
 }
 
-export default class EditPointView extends AbstractStatefulView {
+export default class TripPointEditView extends AbstractStatefulView {
   #allOffers = [];
   #allDestinations = [];
   #handleRollupClick = null;
@@ -30,7 +30,7 @@ export default class EditPointView extends AbstractStatefulView {
 
   constructor({ point, allOffers, allDestinations, onFormSubmit, onRollupClick, onDeleteClick }) {
     super();
-    this._setState(EditPointView.parsePointToState(point));
+    this._setState(TripPointEditView.parsePointToState(point));
     this.#allOffers = allOffers;
     this.#allDestinations = allDestinations;
 
@@ -83,7 +83,7 @@ export default class EditPointView extends AbstractStatefulView {
 
   reset(point) {
     this.updateElement(
-      EditPointView.parsePointToState(point),
+      TripPointEditView.parsePointToState(point),
     );
   }
 
@@ -164,12 +164,12 @@ export default class EditPointView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(EditPointView.parseStateToPoint(this._state));
+    this.#handleFormSubmit(TripPointEditView.parseStateToPoint(this._state));
   };
 
   #deleteClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleDeleteClick(EditPointView.parseStateToPoint(this._state));
+    this.#handleDeleteClick(TripPointEditView.parseStateToPoint(this._state));
   };
 
   #typeChangeHandler = (evt) => {

@@ -1,5 +1,5 @@
-import EditPointView from '../view/trip-point-edit-view.js';
-import PointView from '../view/trip-point-view.js';
+import TripPointEditView from '../view/trip-point-edit-view.js';
+import TripPointView from '../view/trip-point-view.js';
 import { render, replace, remove } from '../framework/render.js';
 import { isEscapeKey } from '../utils/common.js';
 import { Mode, UserAction, UpdateType } from '../constants.js';
@@ -34,10 +34,10 @@ export default class PointPresenter {
 
     const prevPointComponent = this.#pointComponent;
 
-    this.#pointComponent = new PointView({
+    this.#pointComponent = new TripPointView({
       point: this.#point,
-      onRollupClick: this.#handleRollupClick,
-      onFavoriteClick: this.#handleFavoriteClick,
+      onRollupClick: this.#rollupButtonClickHandler,
+      onFavoriteClick: this.#favoriteButtonClickHandler,
     });
 
     if (prevPointComponent === null) {
@@ -70,24 +70,24 @@ export default class PointPresenter {
     }
 
     if (this.#editComponent === null) {
-      this.#editComponent = new EditPointView({
+      this.#editComponent = new TripPointEditView({
         point: this.#point,
         allOffers: this.#allOffers,
         allDestinations: this.#allDestinations,
-        onFormSubmit: this.#handleFormSubmit,
-        onRollupClick: this.#handleRollupCloseClick,
-        onDeleteClick: this.#handleDeleteClick,
+        onFormSubmit: this.#formSubmitHandler,
+        onRollupClick: this.#rollupCloseButtonClickHandler,
+        onDeleteClick: this.#deleteButtonClickHandler,
       });
     }
 
     replace(this.#editComponent, this.#pointComponent);
-    document.addEventListener('keydown', this.#escKeyDownHandler);
+    document.addEventListener('keydown', this.#documentKeyDownHandler);
     this.#mode = Mode.EDITING;
   }
 
   #replaceFormToPoint() {
     replace(this.#pointComponent, this.#editComponent);
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    document.removeEventListener('keydown', this.#documentKeyDownHandler);
     this.#mode = Mode.DEFAULT;
   }
 
@@ -96,18 +96,18 @@ export default class PointPresenter {
     this.#replaceFormToPoint();
   };
 
-  #escKeyDownHandler = (evt) => {
+  #documentKeyDownHandler = (evt) => {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.#closeEditForm();
     }
   };
 
-  #handleRollupClick = () => {
+  #rollupButtonClickHandler = () => {
     this.#replacePointToForm();
   };
 
-  #handleFormSubmit = async (point) => {
+  #formSubmitHandler = async (point) => {
     this.#editComponent.updateElement({
       isDisabled: true,
       isSaving: true,
@@ -130,7 +130,7 @@ export default class PointPresenter {
     }
   };
 
-  #handleDeleteClick = async (point) => {
+  #deleteButtonClickHandler = async (point) => {
     this.#editComponent.updateElement({ isDisabled: true, isDeleting: true });
     try {
       await this.#handleViewAction(UserAction.DELETE_POINT, UpdateType.MAJOR, point);
@@ -146,11 +146,11 @@ export default class PointPresenter {
     }
   };
 
-  #handleRollupCloseClick = () => {
+  #rollupCloseButtonClickHandler = () => {
     this.#closeEditForm();
   };
 
-  #handleFavoriteClick = async () => {
+  #favoriteButtonClickHandler = async () => {
     try {
       await this.#handleViewAction(
         UserAction.UPDATE_POINT,

@@ -15,16 +15,8 @@ export default class OffersModel {
     return this.#offers;
   }
 
-  getOffersByType(type = '') {
-    return this.#offers.find((item) => item.type === type)?.offers || [];
-  }
-
   getOffersByIds(ids = []) {
     return this.#getAllOffers().filter((offer) => ids.includes(offer.id));
-  }
-
-  getPointTypes() {
-    return this.#offers.map((item) => item.type);
   }
 
   #getAllOffers() {

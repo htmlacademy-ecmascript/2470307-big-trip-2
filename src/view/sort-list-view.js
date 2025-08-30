@@ -7,7 +7,7 @@ function createSortTemplate() {
   `;
 }
 
-export default class SortView extends AbstractView {
+export default class SortListView extends AbstractView {
   #handleSortTypeChange = null;
 
   constructor({ onSortTypeChange }) {

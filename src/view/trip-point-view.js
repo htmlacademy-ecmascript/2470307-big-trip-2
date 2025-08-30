@@ -33,7 +33,7 @@ function createTripPointItemTemplate(point) {
   `;
 }
 
-export default class PointView extends AbstractView {
+export default class TripPointView extends AbstractView {
   #point = null;
   #handleRollupClick = null;
   #handleFavoriteClick = null;
