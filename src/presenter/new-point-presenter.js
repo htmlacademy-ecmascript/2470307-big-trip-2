@@ -33,12 +33,12 @@ export default class NewPointPresenter {
     this.#editComponent = new NewPointView({
       allOffers: this.#allOffers,
       allDestinations: this.#allDestinations,
-      onFormSubmit: this.#handleFormSubmit,
-      onCancelClick: this.#handleCancelClick,
+      onFormSubmit: this.#formSubmitHandler,
+      onCancelClick: this.#cancelButtonClickHandler,
     });
 
     render(this.#editComponent, this.#pointListContainer, RenderPosition.AFTERBEGIN);
-    document.addEventListener('keydown', this.#escKeyDownHandler);
+    document.addEventListener('keydown', this.#documentKeyDownHandler);
   }
 
   destroy() {
@@ -50,17 +50,17 @@ export default class NewPointPresenter {
 
     remove(this.#editComponent);
     this.#editComponent = null;
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    document.removeEventListener('keydown', this.#documentKeyDownHandler);
   }
 
-  #escKeyDownHandler = (evt) => {
+  #documentKeyDownHandler = (evt) => {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.destroy();
     }
   };
 
-  #handleFormSubmit = async (point) => {
+  #formSubmitHandler = async (point) => {
     this.#editComponent.updateElement({
       isDisabled: true,
       isSaving: true,
@@ -83,7 +83,7 @@ export default class NewPointPresenter {
     }
   };
 
-  #handleCancelClick = () => {
+  #cancelButtonClickHandler = () => {
     this.destroy();
   };
 }

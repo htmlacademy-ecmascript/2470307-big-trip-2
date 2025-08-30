@@ -13,7 +13,7 @@ const formatTime = (date) => dayjs(date).format(DateFormat.HOUR_MINUTE);
 const getTimeDifference = (dateFrom, dateTo) => {
   const timeDuration = dayjs.duration(dayjs(dateTo).diff(dayjs(dateFrom)));
 
-  const formatTwoDigits = (num) => String(num).padStart(DURATION_FORMAT_PAD_LENGTH, DURATION_FORMAT_PAD_CHAR);
+  const formatTwoDigits = (quantity) => String(quantity).padStart(DURATION_FORMAT_PAD_LENGTH, DURATION_FORMAT_PAD_CHAR);
 
   if (timeDuration.asDays() >= MIN_DAYS_FOR_FULL_DURATION_FORMAT) {
     const days = Math.floor(timeDuration.asDays());

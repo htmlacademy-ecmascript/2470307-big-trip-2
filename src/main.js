@@ -31,7 +31,7 @@ const infoPresenter = new InfoPresenter({
   pointsModel
 });
 
-const handleNewPointFormClose = () => {
+const newPointFormCloseHandler = () => {
   newPointButton.disabled = false;
 };
 
@@ -39,10 +39,10 @@ const tripPresenter = new TripPresenter({
   tripContainer: tripEventsContainer,
   pointsModel,
   filterModel,
-  onNewPointDestroy: handleNewPointFormClose,
+  onNewPointDestroy: newPointFormCloseHandler,
 });
 
-const handleNewPointButtonClick = () => {
+const newPointButtonClickHandler = () => {
   tripPresenter.createPoint();
   newPointButton.disabled = true;
 };
@@ -66,4 +66,4 @@ Promise.all([
   pointsModel.init(true);
 });
 
-newPointButton.addEventListener('click', handleNewPointButtonClick);
+newPointButton.addEventListener('click', newPointButtonClickHandler);
